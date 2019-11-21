@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <vector>
 #include "ground.hpp"
+#include "Character.hpp"
 
 // Include GLEW
 #include <GL/glew.h>
@@ -28,8 +29,6 @@ GLuint VertexArrayID;
 GLuint MatrixID;
 GLuint ViewMatrixID;
 GLuint ModelMatrixID;
-GLuint Texture;
-GLuint TextureID;
 GLuint LightID;
 
 //Ground Obj
@@ -38,6 +37,11 @@ std::vector<glm::vec2> uvs_ground;
 std::vector<glm::vec3> normals_ground;
 
 //camera
+double cam_x = 0;
+double cam_y = 13;
+double cam_z = 10;
+
+//
 glm::mat4 View;
 glm::mat4 Model;
 glm::mat4 Projection;
@@ -45,28 +49,39 @@ glm::mat4 Projection;
 
 //Ground
 Ground * ground = new Ground(0, 0, 0);
+Character * character = new Character(0, 5, 5);
 
 
 
 //setUp Light
 void initialize_objects(){
     ground->initialize();
+    character->initialize();
 
 }
 
 void draw_objects(){
     ground->draw(Model * glm::translate(ground->position));
-    
+    character->draw(Model * glm::translate(character->position));
 }
 
 void clean_up(){
     ground->cleanUp();
+    character->cleanUp();
     
 }
 
 void setup_light(){
-    glm::vec3 lightPos = glm::vec3(1,10,0);
+    glm::vec3 lightPos = glm::vec3(10,10,10);
     glUniform3f(LightID, lightPos.x, lightPos.y, lightPos.z);
+}
+
+void setup_camera(){
+    
+}
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods){
+    
 }
 
 int main( void )
@@ -141,18 +156,12 @@ int main( void )
     Projection = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f); //////
     
     View       = glm::lookAt(
-         glm::vec3(0,13,10), // Camera is at (4,3,3), in World Space
+         glm::vec3(cam_x,cam_y,cam_z), // Camera is at (4,3,3), in World Space
          glm::vec3(0,0,0), // and looks at the origin
          glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
     );
     
     Model = glm::mat4(1.0f);
-
-	// Load the texture
-	Texture = loadDDS("uvmap.DDS");
-	
-	// Get a handle for our "myTextureSampler" uniform
-	TextureID  = glGetUniformLocation(programID, "myTextureSampler");
 
     glUseProgram(programID);
     LightID = glGetUniformLocation(programID, "LightPosition_worldspace");

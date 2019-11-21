@@ -1,5 +1,5 @@
-//ground.cpp
-#include "ground.hpp"
+//Character.cpp
+#include "Character.hpp"
 #include <string.h>
 #include <common/shader.hpp>
 #include <common/texture.hpp>
@@ -17,22 +17,20 @@ extern glm::mat4 View;
 extern glm::mat4 Model;
 extern glm::mat4 Projection;
 
-
-Ground::Ground(
+Character::Character(
     double pos_x, double pos_y, double pos_z
-
-               ){
+                     ){
     position = glm::vec3(pos_x, pos_y, pos_z);
-
+    
 }
 
-void Ground::initialize(){
-    res = loadOBJ("ground.obj", vertices, uvs, normals);
-    Texture = loadDDS("uvmap.DDS");
+void Character::initialize(){
+    res = loadOBJ("character.obj", vertices, uvs, normals);
+    Texture = loadDDS("appletexture.DDS");
     TextureID  = glGetUniformLocation(programID, "myTextureSampler");
     
     indexVBO(vertices, uvs, normals, indices, indexed_vertices, indexed_uvs, indexed_normals);
-
+    
     glGenBuffers(1, &vertexbuffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
     glBufferData(GL_ARRAY_BUFFER, indexed_vertices.size() * sizeof(glm::vec3), &indexed_vertices[0], GL_STATIC_DRAW);
@@ -48,15 +46,10 @@ void Ground::initialize(){
     glGenBuffers(1, &elementbuffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned short), &indices[0] , GL_STATIC_DRAW);
-    
-    
-
-    
 }
 
-void Ground::draw(glm::mat4 Model){
+void Character::draw(glm::mat4 Model){
     glUseProgram(programID);
-
     glUniformMatrix4fv(ViewMatrixID, 1, GL_FALSE, &View[0][0]);
     
     glm::mat4 MVP = Projection * View * Model;
@@ -118,10 +111,13 @@ void Ground::draw(glm::mat4 Model){
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
     glDisableVertexAttribArray(2);
-
 }
 
-void Ground:: cleanUp(){
+void Character::update(){
+    
+}
+
+void Character::cleanUp(){
     glDeleteBuffers(1, &vertexbuffer);
     glDeleteBuffers(1, &uvbuffer);
     glDeleteBuffers(1, &normalbuffer);

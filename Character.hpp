@@ -1,8 +1,10 @@
-//ground.hpp
+//Character.hpp
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include "Enums.hpp"
 
 #include <vector>
 #include <deque>
@@ -22,14 +24,17 @@
 
 using namespace std;
 
-class Ground{
+class Character{
 public:
     glm::vec3 position;
-    double length = 10;
+    double length = 1;
+    double velocity = 0.1;
+    enum Direction direction = South;
+    
     std::vector<glm::vec3> vertices;
     std::vector<glm::vec2> uvs;
     std::vector<glm::vec3> normals;
-   
+    
     std::vector<unsigned short> indices;
     std::vector<glm::vec3> indexed_vertices;
     std::vector<glm::vec2> indexed_uvs;
@@ -39,20 +44,19 @@ public:
     GLuint uvbuffer;
     GLuint normalbuffer;
     GLuint elementbuffer;
-    
+
     GLuint Texture;
     GLuint TextureID;
+    
     bool res;
     
-    
-    
-    Ground(
-    double, double, double //position of the ground
-
-           );
+    Character(
+    double, double, double  //position of character
+              );
     
     void draw(glm::mat4);
     void initialize();
+    void update();
     void cleanUp();
 };
 
