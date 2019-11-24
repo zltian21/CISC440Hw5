@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "Enums.hpp"
 
 #include <vector>
 #include <deque>
@@ -23,13 +22,19 @@
 #include <glm/gtc/random.hpp>
 
 using namespace std;
-
+enum Directions{
+    NORTH,
+    SOUTH,
+    WEST,
+    EAST
+};
 class Character{
 public:
     glm::vec3 position;
-    double length = 1;
-    double velocity = 0.1;
-    enum Direction direction = South;
+    glm::vec2 critical_position;
+    double length = 1.0;
+    glm::vec2 velocity = glm::vec2(0, 0);
+    Directions direction = SOUTH;
     
     std::vector<glm::vec3> vertices;
     std::vector<glm::vec2> uvs;

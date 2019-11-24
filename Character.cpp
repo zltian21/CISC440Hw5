@@ -1,5 +1,7 @@
 //Character.cpp
+#include <iostream>
 #include "Character.hpp"
+#include "ground.hpp"
 #include <string.h>
 #include <common/shader.hpp>
 #include <common/texture.hpp>
@@ -16,11 +18,13 @@ extern GLuint LightID;
 extern glm::mat4 View;
 extern glm::mat4 Model;
 extern glm::mat4 Projection;
+extern Ground ground;
 
 Character::Character(
     double pos_x, double pos_y, double pos_z
                      ){
     position = glm::vec3(pos_x, pos_y, pos_z);
+    critical_position = glm::vec2(position.x, position.z);
     
 }
 
@@ -114,7 +118,25 @@ void Character::draw(glm::mat4 Model){
 }
 
 void Character::update(){
+    position = glm::vec3(position.x + velocity.x, position.y, position.z + velocity.y);
+    if((position.x - length/2) <= -10.0){
+        position.x = -10.0 + length/2;
+    }
+    if((position.x + length/2) >= 10.0){
+        position.x = 10.0 - length/2;
+    }
     
+    if((position.z - length/2) <= -10.0){
+        position.z = -10.0 + length/2;
+    }
+    if((position.z + length/2) >= 10.0){
+        position.z = 10.0 - length/2;
+    }
+    
+    critical_position = glm::vec2(position.x, position.z);
+//    if(critical_position.x-length/2 >= ground.position.x - ground.length/2){
+//        position.x = ground.position.x - ground.length/2;
+//    }
 }
 
 void Character::cleanUp(){

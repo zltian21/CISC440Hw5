@@ -21,11 +21,10 @@
 #include <glm/gtc/random.hpp>
 
 using namespace std;
-
 class Ground{
 public:
     glm::vec3 position;
-    double length = 10;
+    double length = 20;
     std::vector<glm::vec3> vertices;
     std::vector<glm::vec2> uvs;
     std::vector<glm::vec3> normals;

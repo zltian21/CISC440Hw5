@@ -4,6 +4,7 @@
 #include <vector>
 #include "ground.hpp"
 #include "Character.hpp"
+#include <iostream>
 
 // Include GLEW
 #include <GL/glew.h>
@@ -16,6 +17,8 @@ GLFWwindow* window;
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 using namespace glm;
+using namespace std;
+
 
 #include <common/shader.hpp>
 #include <common/texture.hpp>
@@ -37,9 +40,9 @@ std::vector<glm::vec2> uvs_ground;
 std::vector<glm::vec3> normals_ground;
 
 //camera
-double cam_x = 0;
-double cam_y = 13;
-double cam_z = 10;
+double cam_x = 0; //0
+double cam_y = 23; // 13
+double cam_z = 15; // 10
 
 //
 glm::mat4 View;
@@ -49,7 +52,7 @@ glm::mat4 Projection;
 
 //Ground
 Ground * ground = new Ground(0, 0, 0);
-Character * character = new Character(0, 5, 5);
+Character * character = new Character(0, 1.5, 0);
 
 
 
@@ -62,7 +65,28 @@ void initialize_objects(){
 
 void draw_objects(){
     ground->draw(Model * glm::translate(ground->position));
-    character->draw(Model * glm::translate(character->position));
+    switch(character->direction){
+        case SOUTH:
+            character->draw(Model * glm::translate(character->position));
+            break;
+        case NORTH:
+            character->draw(Model * glm::translate(character->position) * glm::rotate((float) (1.00*M_PI),
+                                                                                      glm::vec3(0.0f, 1.0f, 0.0f)
+                                                                                      ));
+            break;
+        case WEST:
+            character->draw(Model * glm::translate(character->position) * glm::rotate((float) (1.5*M_PI),
+                                                                                      glm::vec3(0.0f, 1.0f, 0.0f)
+                                                                                      ));
+            break;
+        case EAST:
+            character->draw(Model * glm::translate(character->position) * glm::rotate((float) (0.5*M_PI),
+                                                                                      glm::vec3(0.0f, 1.0f, 0.0f)
+                                                                                      ));
+            break;
+            
+    }
+    
 }
 
 void clean_up(){
@@ -77,10 +101,76 @@ void setup_light(){
 }
 
 void setup_camera(){
+    View = glm::lookAt(glm::vec3(cam_x,cam_y,cam_z), // Camera is at (4,3,3), in World Space
+                       glm::vec3(0,0,0), // and looks at the origin
+                       glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
+                       );
+}
+
+void update(){
+    character->update();
+    //std::cout<< character->critical_position.x << "  " << character->critical_position.y <<  std::endl;
     
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods){
+    
+    //CAMERA CONTROL
+    if (key == GLFW_KEY_0 && (action == GLFW_PRESS || action == GLFW_REPEAT)){
+        cam_x = 0;
+        cam_y = 23;
+        cam_z = 15;
+    }else if(key == GLFW_KEY_L && (action == GLFW_PRESS || action == GLFW_REPEAT)){
+        cam_x = 0;
+        cam_y = 0;
+        cam_z = 30;
+    }else if(key == GLFW_KEY_O && (action == GLFW_PRESS || action == GLFW_REPEAT)){
+        cam_x = 0;
+        cam_y = 27;
+        cam_z = 0.1;
+    }else if(key == GLFW_KEY_P && (action == GLFW_PRESS || action == GLFW_REPEAT)){
+        cam_x = 30;
+        cam_y = 0;
+        cam_z = 0;
+    }
+    
+    else if(key == GLFW_KEY_W && (action == GLFW_PRESS || action == GLFW_REPEAT)){
+        cam_z -= 0.3;
+    }else if(key == GLFW_KEY_S && (action == GLFW_PRESS || action == GLFW_REPEAT)){
+        cam_z += 0.3;
+    }else if(key == GLFW_KEY_A && (action == GLFW_PRESS || action == GLFW_REPEAT)){
+        cam_x -= 0.3;
+    }else if(key == GLFW_KEY_D && (action == GLFW_PRESS || action == GLFW_REPEAT)){
+        cam_x += 0.3;
+    }else if(key == GLFW_KEY_R && (action == GLFW_PRESS || action == GLFW_REPEAT)){
+        cam_y += 0.3;
+    }else if(key == GLFW_KEY_F && (action == GLFW_PRESS || action == GLFW_REPEAT)){
+        cam_y -= 0.3;
+    }
+    
+    //CHARACTER CONTROL
+    if(key == GLFW_KEY_UP && (action == GLFW_PRESS || action == GLFW_REPEAT)){
+        character->velocity.y = -0.1;
+        character->direction = NORTH;
+        
+    }else if(key == GLFW_KEY_DOWN && (action == GLFW_PRESS || action == GLFW_REPEAT)){
+        character->velocity.y = 0.1;
+        character->direction = SOUTH;
+        
+    }else if(key == GLFW_KEY_LEFT && (action == GLFW_PRESS || action == GLFW_REPEAT)){
+        character->velocity.x = -0.1;
+        character->direction = WEST;
+        
+    }else if(key == GLFW_KEY_RIGHT && (action == GLFW_PRESS || action == GLFW_REPEAT)){
+        character->velocity.x = 0.1;
+        character->direction = EAST;
+    }
+
+    
+    else{
+        character->velocity = glm::vec2(0, 0);
+    }
+    
     
 }
 
@@ -162,7 +252,9 @@ int main( void )
     );
     
     Model = glm::mat4(1.0f);
-
+    
+    glfwSetKeyCallback(window, key_callback);
+    
     glUseProgram(programID);
     LightID = glGetUniformLocation(programID, "LightPosition_worldspace");
     // Read ground.obj file
@@ -171,25 +263,26 @@ int main( void )
 	// Load it into a VBO
 
 	// For speed computation
-	double lastTime = glfwGetTime();
-	int nbFrames = 0;
+//	double lastTime = glfwGetTime();
+//	int nbFrames = 0;
 
 	do{
 
 		// Measure speed
-		double currentTime = glfwGetTime();
-		nbFrames++;
-		if ( currentTime - lastTime >= 1.0 ){ // If last prinf() was more than 1sec ago
-			// printf and reset
-			printf("%f ms/frame\n", 1000.0/double(nbFrames));
-			nbFrames = 0;
-			lastTime += 1.0;
-		}
+//		double currentTime = glfwGetTime();
+//		nbFrames++;
+//		if ( currentTime - lastTime >= 1.0 ){ // If last prinf() was more than 1sec ago
+//			// printf and reset
+//			printf("%f ms/frame\n", 1000.0/double(nbFrames));
+//			nbFrames = 0;
+//			lastTime += 1.0;
+//		}
 
 		// Clear the screen
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+        setup_camera();
         setup_light();
+        update();
         draw_objects();
 
 //		// Compute the MVP matrix from keyboard and mouse input
