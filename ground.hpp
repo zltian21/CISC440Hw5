@@ -20,7 +20,6 @@
 #include <glm/gtx/norm.hpp>
 #include <glm/gtc/random.hpp>
 
-using namespace std;
 class Ground{
 public:
     glm::vec3 position;

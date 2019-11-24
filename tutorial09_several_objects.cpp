@@ -4,6 +4,7 @@
 #include <vector>
 #include "ground.hpp"
 #include "Character.hpp"
+#include "BBox.hpp"
 #include <iostream>
 
 // Include GLEW
@@ -19,7 +20,6 @@ GLFWwindow* window;
 using namespace glm;
 using namespace std;
 
-
 #include <common/shader.hpp>
 #include <common/texture.hpp>
 #include <common/controls.hpp>
@@ -34,10 +34,24 @@ GLuint ViewMatrixID;
 GLuint ModelMatrixID;
 GLuint LightID;
 
-//Ground Obj
-std::vector<glm::vec3> vertices_ground;
-std::vector<glm::vec2> uvs_ground;
-std::vector<glm::vec3> normals_ground;
+//BBoxes
+std::vector<glm::vec3> vertices_bbox;
+std::vector<glm::vec2> uvs_bbox;
+std::vector<glm::vec3> normals_bbox;
+
+GLuint Texture_bbox;
+GLuint TextureID_bbox;
+
+std::vector<unsigned short> indices_bbox;
+std::vector<glm::vec3> indexed_vertices_bbox;
+std::vector<glm::vec2> indexed_uvs_bbox;
+std::vector<glm::vec3> indexed_normals_bbox;
+
+GLuint vertexbuffer_bbox;
+GLuint uvbuffer_bbox;
+GLuint normalbuffer_bbox;
+GLuint elementbuffer_bbox;
+
 
 //camera
 double cam_x = 0; //0
@@ -50,21 +64,73 @@ glm::mat4 Model;
 glm::mat4 Projection;
 
 
-//Ground
+//Objects
 Ground * ground = new Ground(0, 0, 0);
 Character * character = new Character(0, 1.5, 0);
+BBox * bbox = new BBox(4, 1, 0);
 
 
+//bool CheckCollision(Character *c, BBox *bb){
+//    
+////    cout<<bb->critical_position.x <<endl;
+//    bool collisionX = c->critical_position.x + c->length/2 >= bb->critical_position.x - bb->length/2 &&
+//    bb->critical_position.x + bb->length/2 >= c->critical_position.x - c->length/2;
+//    
+//    bool collisionY = c->critical_position.y + c->length/2 >= bb->critical_position.y - bb->length/2 &&
+//    bb->critical_position.y + bb->length/2 >= c->critical_position.y - c->length/2;
+//
+//    return collisionX && collisionY;
+//
+//}
+
+
+
+void initialize_bbox(){
+    bool res = loadOBJ("BBox.obj", vertices_bbox, uvs_bbox, normals_bbox);
+    Texture_bbox = loadDDS("uvtemplate.DDS");
+    TextureID_bbox  = glGetUniformLocation(programID, "myTextureSampler");
+    
+    indexVBO(vertices_bbox, uvs_bbox, normals_bbox, indices_bbox, indexed_vertices_bbox, indexed_uvs_bbox, indexed_normals_bbox);
+    
+    glGenBuffers(1, &vertexbuffer_bbox);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer_bbox);
+    glBufferData(GL_ARRAY_BUFFER, indexed_vertices_bbox.size() * sizeof(glm::vec3), &indexed_vertices_bbox[0], GL_STATIC_DRAW);
+    
+    glGenBuffers(1, &uvbuffer_bbox);
+    glBindBuffer(GL_ARRAY_BUFFER, uvbuffer_bbox);
+    glBufferData(GL_ARRAY_BUFFER, indexed_uvs_bbox.size() * sizeof(glm::vec2), &indexed_uvs_bbox[0], GL_STATIC_DRAW);
+    
+    glGenBuffers(1, &normalbuffer_bbox);
+    glBindBuffer(GL_ARRAY_BUFFER, normalbuffer_bbox);
+    glBufferData(GL_ARRAY_BUFFER, indexed_normals_bbox.size() * sizeof(glm::vec3), &indexed_normals_bbox[0], GL_STATIC_DRAW);
+    
+    glGenBuffers(1, &elementbuffer_bbox);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer_bbox);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_bbox.size() * sizeof(unsigned short), &indices_bbox[0] , GL_STATIC_DRAW);
+}
+
+void cleanUp_bbox(){
+    glDeleteBuffers(1, &vertexbuffer_bbox);
+    glDeleteBuffers(1, &uvbuffer_bbox);
+    glDeleteBuffers(1, &normalbuffer_bbox);
+    glDeleteBuffers(1, &elementbuffer_bbox);
+    glDeleteProgram(programID);
+    glDeleteTextures(1, &Texture_bbox);
+    glDeleteVertexArrays(1, &VertexArrayID);
+}
 
 //setUp Light
 void initialize_objects(){
     ground->initialize();
     character->initialize();
+    initialize_bbox();
 
 }
 
 void draw_objects(){
     ground->draw(Model * glm::translate(ground->position));
+    bbox->draw(Model * glm::translate(bbox->position));
+    
     switch(character->direction){
         case SOUTH:
             character->draw(Model * glm::translate(character->position));
@@ -92,6 +158,7 @@ void draw_objects(){
 void clean_up(){
     ground->cleanUp();
     character->cleanUp();
+    cleanUp_bbox();
     
 }
 
@@ -108,7 +175,13 @@ void setup_camera(){
 }
 
 void update(){
+//    if(CheckCollision(character, bbox)){
+//        character->velocity.x = character->velocity.x * -1;
+//        character->velocity.y = character->velocity.y * -1;
+//    }
     character->update();
+    
+//    CheckCollision(character, bbox);
     //std::cout<< character->critical_position.x << "  " << character->critical_position.y <<  std::endl;
     
 }

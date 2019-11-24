@@ -2,9 +2,11 @@
 #include <iostream>
 #include "Character.hpp"
 #include "ground.hpp"
+#include "BBox.hpp"
 #include <string.h>
 #include <common/shader.hpp>
 #include <common/texture.hpp>
+
 
 #include <common/objloader.hpp>
 #include <common/vboindexer.hpp>
@@ -20,10 +22,13 @@ extern glm::mat4 Model;
 extern glm::mat4 Projection;
 extern Ground ground;
 
+extern BBox * bbox;
+
 Character::Character(
     double pos_x, double pos_y, double pos_z
                      ){
     position = glm::vec3(pos_x, pos_y, pos_z);
+    new_position = glm::vec3(pos_x, pos_y, pos_z);
     critical_position = glm::vec2(position.x, position.z);
     
 }
@@ -117,27 +122,70 @@ void Character::draw(glm::mat4 Model){
     glDisableVertexAttribArray(2);
 }
 
-void Character::update(){
-    position = glm::vec3(position.x + velocity.x, position.y, position.z + velocity.y);
-    if((position.x - length/2) <= -10.0){
-        position.x = -10.0 + length/2;
-    }
-    if((position.x + length/2) >= 10.0){
-        position.x = 10.0 - length/2;
-    }
+//bool Character::CheckCollision(BBox *bb){
     
-    if((position.z - length/2) <= -10.0){
-        position.z = -10.0 + length/2;
+//    cout<<bb->critical_position.x <<endl;
+//    bool collisionX = critical_position.x + length/2 >= bb->critical_position.x - bb->length/2 &&
+//    bb->critical_position.x + bb->length/2 >= critical_position.x - length/2;
+//
+//    bool collisionY = critical_position.y + length/2 >= bb->critical_position.y - bb->length/2 &&
+//    bb->critical_position.y + bb->length/2 >= critical_position.y - length/2;
+
+//    return collisionX && collisionY;
+
+//}
+
+void Character::update(){
+//    position = glm::vec3(position.x + velocity.x, position.y, position.z + velocity.y);
+//    if((position.x - length/2) <= -10.0){
+//        position.x = -10.0 + length/2;
+//    }
+//    if((position.x + length/2) >= 10.0){
+//        position.x = 10.0 - length/2;
+//    }
+//
+//    if((position.z - length/2) <= -10.0){
+//        position.z = -10.0 + length/2;
+//    }
+//    if((position.z + length/2) >= 10.0){
+//        position.z = 10.0 - length/2;
+//    }
+      new_position = glm::vec3(position.x + velocity.x, position.y, position.z + velocity.y);
+    
+            if((new_position.x - length/2) <= -10.0){
+                new_position.x = -10.0 + length/2;
+            }
+            if((new_position.x + length/2) >= 10.0){
+                new_position.x = 10.0 - length/2;
+            }
+        
+            if((new_position.z - length/2) <= -10.0){
+                new_position.z = -10.0 + length/2;
+            }
+            if((new_position.z + length/2) >= 10.0){
+                new_position.z = 10.0 - length/2;
+            }
+    
+    bool collisionX = new_position.x + length/2 > bbox->critical_position.x - bbox->length/2 &&
+    bbox->critical_position.x + bbox->length/2 > new_position.x - length/2;
+    
+    bool collisionZ = new_position.z + length/2 > bbox->critical_position.y - bbox->length/2 &&
+    bbox->critical_position.y + bbox->length/2 > new_position.z - length/2;
+
+    if(collisionX && collisionZ){
+        new_position = position;
     }
-    if((position.z + length/2) >= 10.0){
-        position.z = 10.0 - length/2;
-    }
+
+    
+    position = new_position;
     
     critical_position = glm::vec2(position.x, position.z);
 //    if(critical_position.x-length/2 >= ground.position.x - ground.length/2){
 //        position.x = ground.position.x - ground.length/2;
 //    }
+
 }
+
 
 void Character::cleanUp(){
     glDeleteBuffers(1, &vertexbuffer);

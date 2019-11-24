@@ -31,6 +31,7 @@ enum Directions{
 class Character{
 public:
     glm::vec3 position;
+    glm::vec3 new_position;
     glm::vec2 critical_position;
     double length = 1.0;
     glm::vec2 velocity = glm::vec2(0, 0);
