@@ -5,6 +5,9 @@
 #include "ground.hpp"
 #include "Character.hpp"
 #include "BBox.hpp"
+#include "Bomb.hpp"
+#include "Water.hpp"
+#include "Elements.hpp"
 #include <iostream>
 
 // Include GLEW
@@ -52,11 +55,47 @@ GLuint uvbuffer_bbox;
 GLuint normalbuffer_bbox;
 GLuint elementbuffer_bbox;
 
+//Bombs
+std::vector<glm::vec3> vertices_bomb;
+std::vector<glm::vec2> uvs_bomb;
+std::vector<glm::vec3> normals_bomb;
+
+GLuint Texture_bomb;
+GLuint TextureID_bomb;
+
+std::vector<unsigned short> indices_bomb;
+std::vector<glm::vec3> indexed_vertices_bomb;
+std::vector<glm::vec2> indexed_uvs_bomb;
+std::vector<glm::vec3> indexed_normals_bomb;
+
+GLuint vertexbuffer_bomb;
+GLuint uvbuffer_bomb;
+GLuint normalbuffer_bomb;
+GLuint elementbuffer_bomb;
+
+//Waters
+std::vector<glm::vec3> vertices_water;
+std::vector<glm::vec2> uvs_water;
+std::vector<glm::vec3> normals_water;
+
+GLuint Texture_water;
+GLuint TextureID_water;
+
+std::vector<unsigned short> indices_water;
+std::vector<glm::vec3> indexed_vertices_water;
+std::vector<glm::vec2> indexed_uvs_water;
+std::vector<glm::vec3> indexed_normals_water;
+
+GLuint vertexbuffer_water;
+GLuint uvbuffer_water;
+GLuint normalbuffer_water;
+GLuint elementbuffer_water;
+
 
 //camera
-double cam_x = 0; //0
+double cam_x = 10; //0
 double cam_y = 23; // 13
-double cam_z = 15; // 10
+double cam_z = 25; // 10
 
 //
 glm::mat4 View;
@@ -64,25 +103,19 @@ glm::mat4 Model;
 glm::mat4 Projection;
 
 
-//Objects
-Ground * ground = new Ground(0, 0, 0);
-Character * character = new Character(0, 1.5, 0);
-BBox * bbox = new BBox(4, 1, 0);
+//Game Objects
 
+std::vector<Bomb *> bomb_vec;
+//std::vector<std::vector<Water *> > water_vec;
+std::vector<Water *> water_vec;
 
-//bool CheckCollision(Character *c, BBox *bb){
-//    
-////    cout<<bb->critical_position.x <<endl;
-//    bool collisionX = c->critical_position.x + c->length/2 >= bb->critical_position.x - bb->length/2 &&
-//    bb->critical_position.x + bb->length/2 >= c->critical_position.x - c->length/2;
-//    
-//    bool collisionY = c->critical_position.y + c->length/2 >= bb->critical_position.y - bb->length/2 &&
-//    bb->critical_position.y + bb->length/2 >= c->critical_position.y - c->length/2;
-//
-//    return collisionX && collisionY;
-//
-//}
+Elements map[20][20];
 
+Ground * ground = new Ground(10, 0, 10);
+Character * character = new Character(10, 1.5, 10);
+BBox * bbox = new BBox(14, 1, 10);
+
+//Water * water = new Water(10, 1, 15, 2, 3, 0);
 
 
 void initialize_bbox(){
@@ -109,6 +142,55 @@ void initialize_bbox(){
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_bbox.size() * sizeof(unsigned short), &indices_bbox[0] , GL_STATIC_DRAW);
 }
 
+void initialize_bomb(){
+    bool res = loadOBJ("Bomb.obj", vertices_bomb, uvs_bomb, normals_bomb);
+    Texture_bomb = loadDDS("bomb.DDS");
+    TextureID_bomb  = glGetUniformLocation(programID, "myTextureSampler");
+    
+    indexVBO(vertices_bomb, uvs_bomb, normals_bomb, indices_bomb, indexed_vertices_bomb, indexed_uvs_bomb, indexed_normals_bomb);
+    
+    glGenBuffers(1, &vertexbuffer_bomb);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer_bomb);
+    glBufferData(GL_ARRAY_BUFFER, indexed_vertices_bomb.size() * sizeof(glm::vec3), &indexed_vertices_bomb[0], GL_STATIC_DRAW);
+    
+    glGenBuffers(1, &uvbuffer_bomb);
+    glBindBuffer(GL_ARRAY_BUFFER, uvbuffer_bomb);
+    glBufferData(GL_ARRAY_BUFFER, indexed_uvs_bomb.size() * sizeof(glm::vec2), &indexed_uvs_bomb[0], GL_STATIC_DRAW);
+    
+    glGenBuffers(1, &normalbuffer_bomb);
+    glBindBuffer(GL_ARRAY_BUFFER, normalbuffer_bomb);
+    glBufferData(GL_ARRAY_BUFFER, indexed_normals_bomb.size() * sizeof(glm::vec3), &indexed_normals_bomb[0], GL_STATIC_DRAW);
+    
+    glGenBuffers(1, &elementbuffer_bomb);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer_bomb);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_bomb.size() * sizeof(unsigned short), &indices_bomb[0] , GL_STATIC_DRAW);
+}
+
+void initialize_water(){
+    bool res = loadOBJ("water.obj", vertices_water, uvs_water, normals_water);
+    Texture_water = loadDDS("water.DDS");
+    TextureID_water  = glGetUniformLocation(programID, "myTextureSampler");
+    
+    indexVBO(vertices_water, uvs_water, normals_water, indices_water, indexed_vertices_water, indexed_uvs_water, indexed_normals_water);
+    
+    glGenBuffers(1, &vertexbuffer_water);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer_water);
+    glBufferData(GL_ARRAY_BUFFER, indexed_vertices_water.size() * sizeof(glm::vec3), &indexed_vertices_water[0], GL_STATIC_DRAW);
+    
+    glGenBuffers(1, &uvbuffer_water);
+    glBindBuffer(GL_ARRAY_BUFFER, uvbuffer_water);
+    glBufferData(GL_ARRAY_BUFFER, indexed_uvs_water.size() * sizeof(glm::vec2), &indexed_uvs_water[0], GL_STATIC_DRAW);
+    
+    glGenBuffers(1, &normalbuffer_water);
+    glBindBuffer(GL_ARRAY_BUFFER, normalbuffer_water);
+    glBufferData(GL_ARRAY_BUFFER, indexed_normals_water.size() * sizeof(glm::vec3), &indexed_normals_water[0], GL_STATIC_DRAW);
+    
+    glGenBuffers(1, &elementbuffer_water);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer_water);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_water.size() * sizeof(unsigned short), &indices_water[0] , GL_STATIC_DRAW);
+}
+
+
 void cleanUp_bbox(){
     glDeleteBuffers(1, &vertexbuffer_bbox);
     glDeleteBuffers(1, &uvbuffer_bbox);
@@ -119,17 +201,48 @@ void cleanUp_bbox(){
     glDeleteVertexArrays(1, &VertexArrayID);
 }
 
+void cleanUp_bomb(){
+    glDeleteBuffers(1, &vertexbuffer_bomb);
+    glDeleteBuffers(1, &uvbuffer_bomb);
+    glDeleteBuffers(1, &normalbuffer_bomb);
+    glDeleteBuffers(1, &elementbuffer_bomb);
+    glDeleteProgram(programID);
+    glDeleteTextures(1, &Texture_bomb);
+    glDeleteVertexArrays(1, &VertexArrayID);
+}
+
+void cleanUp_water(){
+    glDeleteBuffers(1, &vertexbuffer_water);
+    glDeleteBuffers(1, &uvbuffer_water);
+    glDeleteBuffers(1, &normalbuffer_water);
+    glDeleteBuffers(1, &elementbuffer_water);
+    glDeleteProgram(programID);
+    glDeleteTextures(1, &Texture_water);
+    glDeleteVertexArrays(1, &VertexArrayID);
+}
 //setUp Light
 void initialize_objects(){
     ground->initialize();
     character->initialize();
     initialize_bbox();
+    initialize_bomb();
+    initialize_water();
 
 }
 
 void draw_objects(){
     ground->draw(Model * glm::translate(ground->position));
     bbox->draw(Model * glm::translate(bbox->position));
+    //water->draw(Model* glm::translate(water->position));
+    for(int i = 0; i < bomb_vec.size(); i++){
+        bomb_vec[i]->draw(Model * glm::translate(bomb_vec[i]->position));
+    }
+    
+    for(int i = 0; i < water_vec.size(); i++){
+        water_vec[i]->draw(Model * glm::translate(water_vec[i]->position));
+        water_vec[i]->draw(Model * glm::translate(water_vec[i]->position) * glm::rotate((float) (0.50*M_PI),
+        glm::vec3(0.0f, 1.0f, 0.0f)));
+    }
     
     switch(character->direction){
         case SOUTH:
@@ -155,56 +268,98 @@ void draw_objects(){
     
 }
 
+void update(){
+    character->update();
+    
+    for(std::vector<Bomb *>::iterator it = bomb_vec.begin(); it != bomb_vec.end(); ){
+        if((*it)->timesUp()){
+            map[(*it)->index_x][(*it)->index_z] = Elements::WATERPR;
+            Bomb * temp = *it;  //
+            delete(temp);       //Not Sure
+            
+            it = bomb_vec.erase(it);
+        }else{
+            ++it;
+        }
+    }
+    
+    for(std::vector<Water *>::iterator it = water_vec.begin(); it != water_vec.end();){
+        if((*it)->timesUp()){
+            map[(*it)->index_x][(*it)->index_z] = Elements::EMPTY;
+            Water *temp = *it;
+            delete(temp);
+            it = water_vec.erase(it);
+        }else{
+            (*it)->update();
+            ++it;
+        }
+    }
+    
+    //Elements map[20][20];
+    //std::vector<std::vector<Water *> > water_vec;
+    //bomb_vec.push_back(new Bomb((double)temp_x + 0.5, 1, (double)temp_z + 0.5, temp_x, temp_z));
+   
+    for(int i = 0; i < 20; i++){
+        for(int j = 0; j < 20; j++){
+            if(map[i][j] == Elements::WATERPR){
+                map[i][j] = Elements::WATERDO;
+                water_vec.push_back(new Water((double)i + 0.5, 1.0, (double)j + 0.5, i, j));
+            }
+        }
+    }
+//    for(int i = 0; i < bomb_vec.size(); i++){
+//        // cout << "Hello " << endl;
+//        if(bomb_vec[i]->timesUp() == true){
+//            map[bomb_vec[i]->index_x][bomb_vec[i]->index_z] = Elements::EMPTY;
+//            bomb_vec.erase(bomb_vec.begin()+1);
+//
+//        }
+//    }
+    
+}
+
 void clean_up(){
     ground->cleanUp();
     character->cleanUp();
     cleanUp_bbox();
+    cleanUp_bomb();
+    cleanUp_water();
     
 }
 
 void setup_light(){
-    glm::vec3 lightPos = glm::vec3(10,10,10);
+    glm::vec3 lightPos = glm::vec3(20,10,20);
     glUniform3f(LightID, lightPos.x, lightPos.y, lightPos.z);
 }
 
 void setup_camera(){
     View = glm::lookAt(glm::vec3(cam_x,cam_y,cam_z), // Camera is at (4,3,3), in World Space
-                       glm::vec3(0,0,0), // and looks at the origin
+                       glm::vec3(10, 0, 10), // and looks at the origin
                        glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
                        );
 }
 
-void update(){
-//    if(CheckCollision(character, bbox)){
-//        character->velocity.x = character->velocity.x * -1;
-//        character->velocity.y = character->velocity.y * -1;
-//    }
-    character->update();
-    
-//    CheckCollision(character, bbox);
-    //std::cout<< character->critical_position.x << "  " << character->critical_position.y <<  std::endl;
-    
-}
+
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods){
     
     //CAMERA CONTROL
     if (key == GLFW_KEY_0 && (action == GLFW_PRESS || action == GLFW_REPEAT)){
-        cam_x = 0;
+        cam_x = 10;
         cam_y = 23;
-        cam_z = 15;
+        cam_z = 25;
     }else if(key == GLFW_KEY_L && (action == GLFW_PRESS || action == GLFW_REPEAT)){
-        cam_x = 0;
+        cam_x = 10;
         cam_y = 0;
-        cam_z = 30;
+        cam_z = 40;
     }else if(key == GLFW_KEY_O && (action == GLFW_PRESS || action == GLFW_REPEAT)){
-        cam_x = 0;
+        cam_x = 10;
         cam_y = 27;
-        cam_z = 0.1;
+        cam_z = 10.1;
     }else if(key == GLFW_KEY_P && (action == GLFW_PRESS || action == GLFW_REPEAT)){
-        cam_x = 30;
+        cam_x = 40;
         cam_y = 0;
-        cam_z = 0;
+        cam_z = 10;
     }
     
     else if(key == GLFW_KEY_W && (action == GLFW_PRESS || action == GLFW_REPEAT)){
@@ -237,10 +392,20 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     }else if(key == GLFW_KEY_RIGHT && (action == GLFW_PRESS || action == GLFW_REPEAT)){
         character->velocity.x = 0.1;
         character->direction = EAST;
+    }else if(key == GLFW_KEY_SPACE && (action == GLFW_PRESS || action == GLFW_REPEAT)){
+        int temp_x = (int) character->critical_position.x;
+        int temp_z = (int) character->critical_position.y;
+        
+        if(map[temp_x][temp_z] == Elements::EMPTY){
+            map[temp_x][temp_z] = Elements::BOMB;
+            bomb_vec.push_back(new Bomb((double)temp_x + 0.5, 1, (double)temp_z + 0.5, temp_x, temp_z));
+        }
+        
+        
+        //bomb_vec.push_back();
     }
-
-    
     else{
+        
         character->velocity = glm::vec2(0, 0);
     }
     
@@ -249,13 +414,20 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 int main( void )
 {
-	// Initialise GLFW
+    
+    // Initialise GLFW
 	if( !glfwInit() )
 	{
 		fprintf( stderr, "Failed to initialize GLFW\n" );
 		getchar();
 		return -1;
 	}
+    
+    for(int i = 0; i < 20; i++){
+        for(int j = 0; j < 20; j++){
+            map[i][j] = Elements::EMPTY;
+        }
+    }
 
 	glfwWindowHint(GLFW_SAMPLES, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);

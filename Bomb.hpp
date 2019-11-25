@@ -1,4 +1,4 @@
-//BBox.hpp
+//Bomb.hpp
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,18 +20,22 @@
 #include <glm/gtx/norm.hpp>
 #include <glm/gtc/random.hpp>
 
-class BBox{
+class Bomb{
 public:
     glm::vec3 position;
     glm::vec2 critical_position;
     double length = 1.0;
     int index_x;
     int index_z;
-        
-    BBox(
-         double, double, double //position of BBox
+    int remain_time = 200;
+    bool on_flag = true;
+    
+    Bomb(
+         double, double, double, //position of Bomb
+         int, int               //index x, z of the bomb
          );
     
     void draw(glm::mat4);
+    bool timesUp();
     void update();
 };

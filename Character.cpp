@@ -3,6 +3,7 @@
 #include "Character.hpp"
 #include "ground.hpp"
 #include "BBox.hpp"
+#include "Bomb.hpp"
 #include <string.h>
 #include <common/shader.hpp>
 #include <common/texture.hpp>
@@ -23,6 +24,7 @@ extern glm::mat4 Projection;
 extern Ground ground;
 
 extern BBox * bbox;
+extern std::vector<Bomb *> bomb_vec;
 
 Character::Character(
     double pos_x, double pos_y, double pos_z
@@ -134,8 +136,39 @@ void Character::draw(glm::mat4 Model){
 //    return collisionX && collisionY;
 
 //}
+void Character::checkBomb(){
+    for(int i = 0; i < bomb_vec.size(); i++){
+        if(bomb_vec[i]->on_flag){
+            if((position.x - 0.5 > bomb_vec[i]->critical_position.x + 0.5 || position.x + 0.5 < bomb_vec[i]->critical_position.x - 0.5) || (position.z - 0.5 > bomb_vec[i]->critical_position.y + 0.5 || position.z + 0.5 < bomb_vec[i]->critical_position.y - 0.5)){
+                bomb_vec[i]->on_flag = false;
+            }
+        }else{
+            bool collisionX = new_position.x + length/2 > bomb_vec[i]->critical_position.x - bomb_vec[i]->length/2 &&
+            bomb_vec[i]->critical_position.x + bomb_vec[i]->length/2 > new_position.x - length/2;
+            
+            bool collisionZ = new_position.z + length/2 > bomb_vec[i]->critical_position.y - bomb_vec[i]->length/2 &&
+            bomb_vec[i]->critical_position.y + bomb_vec[i]->length/2 > new_position.z - length/2;
+            
+            if(collisionX && collisionZ){
+                new_position = position;
+            }
+        }
+    }
+}
 
+void Character::checkBBox(){
+    bool collisionX = new_position.x + length/2 > bbox->critical_position.x - bbox->length/2 &&
+    bbox->critical_position.x + bbox->length/2 > new_position.x - length/2;
+
+    bool collisionZ = new_position.z + length/2 > bbox->critical_position.y - bbox->length/2 &&
+    bbox->critical_position.y + bbox->length/2 > new_position.z - length/2;
+
+    if(collisionX && collisionZ){
+        new_position = position;
+    }
+}
 void Character::update(){
+    
 //    position = glm::vec3(position.x + velocity.x, position.y, position.z + velocity.y);
 //    if((position.x - length/2) <= -10.0){
 //        position.x = -10.0 + length/2;
@@ -152,37 +185,28 @@ void Character::update(){
 //    }
       new_position = glm::vec3(position.x + velocity.x, position.y, position.z + velocity.y);
     
-            if((new_position.x - length/2) <= -10.0){
-                new_position.x = -10.0 + length/2;
+            if((new_position.x - length/2) <= 0.0){
+                new_position.x = 0.0 + length/2;
             }
-            if((new_position.x + length/2) >= 10.0){
-                new_position.x = 10.0 - length/2;
+            if((new_position.x + length/2) >= 20.0){
+                new_position.x = 20.0 - length/2;
             }
         
-            if((new_position.z - length/2) <= -10.0){
-                new_position.z = -10.0 + length/2;
+            if((new_position.z - length/2) <= 0.0){
+                new_position.z = 0.0 + length/2;
             }
-            if((new_position.z + length/2) >= 10.0){
-                new_position.z = 10.0 - length/2;
+            if((new_position.z + length/2) >= 20.0){
+                new_position.z = 20.0 - length/2;
             }
     
-    bool collisionX = new_position.x + length/2 > bbox->critical_position.x - bbox->length/2 &&
-    bbox->critical_position.x + bbox->length/2 > new_position.x - length/2;
-    
-    bool collisionZ = new_position.z + length/2 > bbox->critical_position.y - bbox->length/2 &&
-    bbox->critical_position.y + bbox->length/2 > new_position.z - length/2;
-
-    if(collisionX && collisionZ){
-        new_position = position;
-    }
+    checkBBox();
+    checkBomb();
 
     
     position = new_position;
     
     critical_position = glm::vec2(position.x, position.z);
-//    if(critical_position.x-length/2 >= ground.position.x - ground.length/2){
-//        position.x = ground.position.x - ground.length/2;
-//    }
+
 
 }
 

@@ -64,5 +64,7 @@ public:
     void initialize();
     void update();
     void cleanUp();
+    void checkBBox();
+    void checkBomb();
 };
 
