@@ -29,8 +29,9 @@ public:
     int index_z;
         
     BBox(
-         double, double, double //position of BBox
-         );
+         double, double, double,//position of BBox
+         int, int               //index x, z in the map
+    );
     
     void draw(glm::mat4);
     void update();

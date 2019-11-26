@@ -34,10 +34,13 @@ using namespace std;
 
 
 BBox::BBox(
-        double pos_x, double pos_y, double pos_z
+        double pos_x, double pos_y, double pos_z,
+        int i_x, int i_z
            ){
         position = glm::vec3(pos_x, pos_y, pos_z);
         critical_position = glm::vec2(position.x, position.z);
+        index_x = i_x;
+        index_z = i_z;
 }
 
 

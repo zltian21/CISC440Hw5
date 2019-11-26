@@ -106,19 +106,25 @@ glm::mat4 Projection;
 //Game Objects
 
 std::vector<Bomb *> bomb_vec;
-//std::vector<std::vector<Water *> > water_vec;
 std::vector<Water *> water_vec;
+std::vector<BBox *> bbox_vec;
 
 Elements map[20][20];
 
 Ground * ground = new Ground(10, 0, 10);
 Character * character = new Character(10, 1.5, 10);
-BBox * bbox = new BBox(14, 1, 10);
 
-//Water * water = new Water(10, 1, 15, 2, 3, 0);
+
 
 
 void initialize_bbox(){
+    
+    map[14][10] = Elements::BBOX;
+    bbox_vec.push_back(new BBox(14.5, 1.0, 10.5, 14, 10));
+    
+    map[15][11] = Elements::BBOX;
+    bbox_vec.push_back(new BBox(15.5, 1.0, 11.5, 15, 11));
+    
     bool res = loadOBJ("BBox.obj", vertices_bbox, uvs_bbox, normals_bbox);
     Texture_bbox = loadDDS("uvtemplate.DDS");
     TextureID_bbox  = glGetUniformLocation(programID, "myTextureSampler");
@@ -140,6 +146,12 @@ void initialize_bbox(){
     glGenBuffers(1, &elementbuffer_bbox);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer_bbox);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_bbox.size() * sizeof(unsigned short), &indices_bbox[0] , GL_STATIC_DRAW);
+
+    //map[temp_x][temp_z] = Elements::BOMB;
+    //bomb_vec.push_back(new Bomb((double)temp_x + 0.5, 1, (double)temp_z + 0.5, temp_x, temp_z));
+    
+
+    
 }
 
 void initialize_bomb(){
@@ -232,7 +244,10 @@ void initialize_objects(){
 
 void draw_objects(){
     ground->draw(Model * glm::translate(ground->position));
-    bbox->draw(Model * glm::translate(bbox->position));
+    
+    for(int i = 0; i < bbox_vec.size(); i++){
+        bbox_vec[i]->draw(Model * glm::translate(bbox_vec[i]->position));
+    }
     //water->draw(Model* glm::translate(water->position));
     for(int i = 0; i < bomb_vec.size(); i++){
         bomb_vec[i]->draw(Model * glm::translate(bomb_vec[i]->position));
@@ -291,9 +306,12 @@ void update(){
             it = water_vec.erase(it);
         }else{
             (*it)->update();
+            
             ++it;
         }
     }
+    
+    
     
     //Elements map[20][20];
     //std::vector<std::vector<Water *> > water_vec;
@@ -401,8 +419,6 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             bomb_vec.push_back(new Bomb((double)temp_x + 0.5, 1, (double)temp_z + 0.5, temp_x, temp_z));
         }
         
-        
-        //bomb_vec.push_back();
     }
     else{
         
@@ -456,6 +472,9 @@ int main( void )
     
     //Initialize all Objects
     initialize_objects();
+    
+    //
+    
     
 	// Ensure we can capture the escape key being pressed below
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);

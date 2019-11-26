@@ -23,7 +23,7 @@ extern glm::mat4 Model;
 extern glm::mat4 Projection;
 extern Ground ground;
 
-extern BBox * bbox;
+extern std::vector<BBox *>bbox_vec;
 extern std::vector<Bomb *> bomb_vec;
 
 Character::Character(
@@ -157,15 +157,20 @@ void Character::checkBomb(){
 }
 
 void Character::checkBBox(){
-    bool collisionX = new_position.x + length/2 > bbox->critical_position.x - bbox->length/2 &&
-    bbox->critical_position.x + bbox->length/2 > new_position.x - length/2;
+    
+    for(int i = 0; i < bbox_vec.size(); i++){
+        
+        bool collisionX = new_position.x + length/2 > bbox_vec[i]->critical_position.x - bbox_vec[i]->length/2 &&
+        bbox_vec[i]->critical_position.x + bbox_vec[i]->length/2 > new_position.x - length/2;
 
-    bool collisionZ = new_position.z + length/2 > bbox->critical_position.y - bbox->length/2 &&
-    bbox->critical_position.y + bbox->length/2 > new_position.z - length/2;
+        bool collisionZ = new_position.z + length/2 > bbox_vec[i]->critical_position.y - bbox_vec[i]->length/2 &&
+        bbox_vec[i]->critical_position.y + bbox_vec[i]->length/2 > new_position.z - length/2;
 
-    if(collisionX && collisionZ){
-        new_position = position;
+        if(collisionX && collisionZ){
+            new_position = position;
+        }
     }
+    
 }
 void Character::update(){
     

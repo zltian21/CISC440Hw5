@@ -34,7 +34,8 @@ extern std::vector<unsigned short> indices_water;
 extern std::vector<Bomb *> bomb_vec;
 extern Elements map[20][20];
 extern Character * character;
-extern BBox * bbox;
+
+extern std::vector<BBox *> bbox_vec;
 
 
 Water::Water(
@@ -68,25 +69,44 @@ Water::Water(
 //map[range[i][0]][range[i][1]]
 void Water::update(){
     for(int i = 0; i < 13; i++){
-        cout<< range[i][0] << "   "<<range[i][1] << endl;
         if(map[range[i][0]][range[i][1]] != Elements::EMPTY){
             if(map[range[i][0]][range[i][1]] == Elements::BOMB){
                 
-//                for(int j = 0; j < bomb_vec.size(); j++){
-//
-//                    if(bomb_vec[j]->index_x == range[i][0] && bomb_vec[j]->index_z == range[i][1]){
-//
-//                        bomb_vec[i]->remain_time = 0;
-//
-//                    }
-//                }
-                
                 for(std::vector<Bomb *>::iterator it = bomb_vec.begin(); it != bomb_vec.end();++it){
+
+                    cout << (*it)->index_x << endl;
                     if((*it)->index_x == range[i][0] && (*it)->index_z == range[i][1]){
+                        cout << (*it)->index_x << endl;
+                        cout << range[i][0] << " " << range[i][1] << endl;
                         (*it)->remain_time = 0;
                     }
                 }
+            }else if(map[range[i][0]][range[i][1]] == Elements::BBOX){
+                
+                for(std::vector<BBox *>::iterator itr = bbox_vec.begin(); itr != bbox_vec.end();++itr){
+//                    
+                    if((*itr)->index_x == range[i][0] && (*itr)->index_z == range[i][1]){
+                        map[range[i][0]][range[i][1]] = Elements::EMPTY;
+                        cout << "Hello" << endl;
+                        BBox * temp = *itr;
+                        delete(temp);
+                        itr = bbox_vec.erase(itr);
+                        break;
+                    }
+                }
             }
+            
+//            else if(map[range[i][0]][range[i][1]] == Elements::BBOX){
+//                for(std::vector<BBox *>::iterator it = bbox_vec.begin(); it != bbox_vec.end();++it){
+//                    if((*it)->index_x == range[i][0] && (*it)->index_z == range[i][1]){
+//                        map[range[i][0]][range[i][1]] = Elements::EMPTY;
+//                        BBox * temp = *it;
+//                        //delete(temp);
+//                        it = bbox_vec.erase(it);
+//                        cout<< "HEllo" << endl;
+//                    }
+//                }
+//            }
         }
     }
 }
