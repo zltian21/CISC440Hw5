@@ -1,4 +1,4 @@
-//BBox.hpp
+//UBox.hpp
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,19 +19,18 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/norm.hpp>
 #include <glm/gtc/random.hpp>
-
-class BBox{
+class UBox{
 public:
     glm::vec3 position;
     glm::vec2 critical_position;
     double length = 1.0;
     int index_x;
     int index_z;
-        
-    BBox(
-         double, double, double,//position of BBox
-         int, int               //index x, z in the map
-    );
+    
+    UBox(
+         double, double, double, //position of UBox
+         int, int                //Index x, z in the map
+         );
     
     void draw(glm::mat4);
 };

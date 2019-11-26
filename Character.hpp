@@ -65,6 +65,8 @@ public:
     void update();
     void cleanUp();
     void checkBBox();
+    void checkUBox();
     void checkBomb();
+    
 };
 

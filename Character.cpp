@@ -3,6 +3,7 @@
 #include "Character.hpp"
 #include "ground.hpp"
 #include "BBox.hpp"
+#include "UBox.hpp"
 #include "Bomb.hpp"
 #include <string.h>
 #include <common/shader.hpp>
@@ -23,7 +24,8 @@ extern glm::mat4 Model;
 extern glm::mat4 Projection;
 extern Ground ground;
 
-extern std::vector<BBox *>bbox_vec;
+extern std::vector<BBox *> bbox_vec;
+extern std::vector<UBox *> ubox_vec;
 extern std::vector<Bomb *> bomb_vec;
 
 Character::Character(
@@ -156,6 +158,21 @@ void Character::checkBomb(){
     }
 }
 
+void Character::checkUBox(){
+    for(int i = 0; i < ubox_vec.size(); i++){
+        
+        bool collisionX = new_position.x + length/2 > ubox_vec[i]->critical_position.x - ubox_vec[i]->length/2 &&
+        ubox_vec[i]->critical_position.x + ubox_vec[i]->length/2 > new_position.x - length/2;
+
+        bool collisionZ = new_position.z + length/2 > ubox_vec[i]->critical_position.y - ubox_vec[i]->length/2 &&
+        ubox_vec[i]->critical_position.y + ubox_vec[i]->length/2 > new_position.z - length/2;
+
+        if(collisionX && collisionZ){
+            new_position = position;
+        }
+    }
+}
+
 void Character::checkBBox(){
     
     for(int i = 0; i < bbox_vec.size(); i++){
@@ -205,6 +222,7 @@ void Character::update(){
             }
     
     checkBBox();
+    checkUBox();
     checkBomb();
 
     

@@ -7,6 +7,7 @@
 #include "BBox.hpp"
 #include "Bomb.hpp"
 #include "Water.hpp"
+#include "UBox.hpp"
 #include "Elements.hpp"
 #include <iostream>
 
@@ -54,6 +55,24 @@ GLuint vertexbuffer_bbox;
 GLuint uvbuffer_bbox;
 GLuint normalbuffer_bbox;
 GLuint elementbuffer_bbox;
+
+//UBoxes
+std::vector<glm::vec3> vertices_ubox;
+std::vector<glm::vec2> uvs_ubox;
+std::vector<glm::vec3> normals_ubox;
+
+GLuint Texture_ubox;
+GLuint TextureID_ubox;
+
+std::vector<unsigned short> indices_ubox;
+std::vector<glm::vec3> indexed_vertices_ubox;
+std::vector<glm::vec2> indexed_uvs_ubox;
+std::vector<glm::vec3> indexed_normals_ubox;
+
+GLuint vertexbuffer_ubox;
+GLuint uvbuffer_ubox;
+GLuint normalbuffer_ubox;
+GLuint elementbuffer_ubox;
 
 //Bombs
 std::vector<glm::vec3> vertices_bomb;
@@ -108,6 +127,7 @@ glm::mat4 Projection;
 std::vector<Bomb *> bomb_vec;
 std::vector<Water *> water_vec;
 std::vector<BBox *> bbox_vec;
+std::vector<UBox *> ubox_vec;
 
 Elements map[20][20];
 
@@ -146,13 +166,42 @@ void initialize_bbox(){
     glGenBuffers(1, &elementbuffer_bbox);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer_bbox);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_bbox.size() * sizeof(unsigned short), &indices_bbox[0] , GL_STATIC_DRAW);
-
-    //map[temp_x][temp_z] = Elements::BOMB;
-    //bomb_vec.push_back(new Bomb((double)temp_x + 0.5, 1, (double)temp_z + 0.5, temp_x, temp_z));
-    
-
     
 }
+
+void initialize_ubox(){
+    
+    map[2][2] = Elements::UBOX;
+    ubox_vec.push_back(new UBox(2.5, 1.0, 2.5, 2, 2));
+    
+    map[18][19] = Elements::UBOX;
+    ubox_vec.push_back(new UBox(18.5, 1.0, 19.5, 18, 19));
+    
+    bool res = loadOBJ("Ubox.obj", vertices_ubox, uvs_ubox, normals_ubox);
+    Texture_ubox = loadDDS("Ubox.DDS");
+    TextureID_ubox  = glGetUniformLocation(programID, "myTextureSampler");
+    
+    indexVBO(vertices_ubox, uvs_ubox, normals_ubox, indices_ubox, indexed_vertices_ubox, indexed_uvs_ubox, indexed_normals_ubox);
+    
+    glGenBuffers(1, &vertexbuffer_ubox);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer_ubox);
+    glBufferData(GL_ARRAY_BUFFER, indexed_vertices_ubox.size() * sizeof(glm::vec3), &indexed_vertices_ubox[0], GL_STATIC_DRAW);
+    
+    glGenBuffers(1, &uvbuffer_ubox);
+    glBindBuffer(GL_ARRAY_BUFFER, uvbuffer_ubox);
+    glBufferData(GL_ARRAY_BUFFER, indexed_uvs_ubox.size() * sizeof(glm::vec2), &indexed_uvs_ubox[0], GL_STATIC_DRAW);
+    
+    glGenBuffers(1, &normalbuffer_ubox);
+    glBindBuffer(GL_ARRAY_BUFFER, normalbuffer_ubox);
+    glBufferData(GL_ARRAY_BUFFER, indexed_normals_ubox.size() * sizeof(glm::vec3), &indexed_normals_ubox[0], GL_STATIC_DRAW);
+    
+    glGenBuffers(1, &elementbuffer_ubox);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer_ubox);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_ubox.size() * sizeof(unsigned short), &indices_ubox[0] , GL_STATIC_DRAW);
+    
+}
+
+
 
 void initialize_bomb(){
     bool res = loadOBJ("Bomb.obj", vertices_bomb, uvs_bomb, normals_bomb);
@@ -213,6 +262,16 @@ void cleanUp_bbox(){
     glDeleteVertexArrays(1, &VertexArrayID);
 }
 
+void cleanUp_ubox(){
+    glDeleteBuffers(1, &vertexbuffer_ubox);
+    glDeleteBuffers(1, &uvbuffer_ubox);
+    glDeleteBuffers(1, &normalbuffer_ubox);
+    glDeleteBuffers(1, &elementbuffer_ubox);
+    glDeleteProgram(programID);
+    glDeleteTextures(1, &Texture_ubox);
+    glDeleteVertexArrays(1, &VertexArrayID);
+}
+
 void cleanUp_bomb(){
     glDeleteBuffers(1, &vertexbuffer_bomb);
     glDeleteBuffers(1, &uvbuffer_bomb);
@@ -232,22 +291,32 @@ void cleanUp_water(){
     glDeleteTextures(1, &Texture_water);
     glDeleteVertexArrays(1, &VertexArrayID);
 }
-//setUp Light
+
+
 void initialize_objects(){
     ground->initialize();
     character->initialize();
     initialize_bbox();
+    initialize_ubox();
     initialize_bomb();
     initialize_water();
 
 }
 
 void draw_objects(){
+    //Ground
     ground->draw(Model * glm::translate(ground->position));
     
+    //BBOX
     for(int i = 0; i < bbox_vec.size(); i++){
         bbox_vec[i]->draw(Model * glm::translate(bbox_vec[i]->position));
     }
+    
+    //UBOX
+    for(int i = 0; i < ubox_vec.size(); i++){
+        ubox_vec[i]->draw(Model * glm::translate(ubox_vec[i]->position));
+    }
+    
     //water->draw(Model* glm::translate(water->position));
     for(int i = 0; i < bomb_vec.size(); i++){
         bomb_vec[i]->draw(Model * glm::translate(bomb_vec[i]->position));
@@ -340,13 +409,14 @@ void clean_up(){
     ground->cleanUp();
     character->cleanUp();
     cleanUp_bbox();
+    cleanUp_ubox();
     cleanUp_bomb();
     cleanUp_water();
     
 }
 
 void setup_light(){
-    glm::vec3 lightPos = glm::vec3(20,10,20);
+    glm::vec3 lightPos = glm::vec3(10,30,10);
     glUniform3f(LightID, lightPos.x, lightPos.y, lightPos.z);
 }
 
