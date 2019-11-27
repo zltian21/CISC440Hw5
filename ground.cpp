@@ -28,7 +28,7 @@ Ground::Ground(
 
 void Ground::initialize(){
     res = loadOBJ("ground.obj", vertices, uvs, normals);
-    Texture = loadDDS("uvmap.DDS");
+    Texture = loadDDS("ground.DDS");
     TextureID  = glGetUniformLocation(programID, "myTextureSampler");
     
     indexVBO(vertices, uvs, normals, indices, indexed_vertices, indexed_uvs, indexed_normals);

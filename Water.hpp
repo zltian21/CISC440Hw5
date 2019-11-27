@@ -30,7 +30,7 @@ public:
     int index_x;
     int index_z;
     //int index; // 2 waters a pair
-    int remain_time = 30;
+    int remain_time = 18; //30
     int range[13][2];
     
     

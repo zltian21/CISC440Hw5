@@ -24,7 +24,7 @@ class Bomb{
 public:
     glm::vec3 position;
     glm::vec2 critical_position;
-    double length = 1.0;
+    double length = 0.9;
     int index_x;
     int index_z;
     int remain_time = 200;

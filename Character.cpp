@@ -39,7 +39,7 @@ Character::Character(
 
 void Character::initialize(){
     res = loadOBJ("character.obj", vertices, uvs, normals);
-    Texture = loadDDS("appletexture.DDS");
+    Texture = loadDDS("character.DDS");
     TextureID  = glGetUniformLocation(programID, "myTextureSampler");
     
     indexVBO(vertices, uvs, normals, indices, indexed_vertices, indexed_uvs, indexed_normals);
@@ -141,7 +141,7 @@ void Character::draw(glm::mat4 Model){
 void Character::checkBomb(){
     for(int i = 0; i < bomb_vec.size(); i++){
         if(bomb_vec[i]->on_flag){
-            if((position.x - 0.5 > bomb_vec[i]->critical_position.x + 0.5 || position.x + 0.5 < bomb_vec[i]->critical_position.x - 0.5) || (position.z - 0.5 > bomb_vec[i]->critical_position.y + 0.5 || position.z + 0.5 < bomb_vec[i]->critical_position.y - 0.5)){
+            if((position.x - 0.5 >= bomb_vec[i]->critical_position.x + 0.5 || position.x + 0.5 <= bomb_vec[i]->critical_position.x - 0.5) || (position.z - 0.5 >= bomb_vec[i]->critical_position.y + 0.5 || position.z + 0.5 <= bomb_vec[i]->critical_position.y - 0.5)){
                 bomb_vec[i]->on_flag = false;
             }
         }else{

@@ -131,22 +131,219 @@ std::vector<UBox *> ubox_vec;
 
 Elements map[20][20];
 
-Ground * ground = new Ground(10, 0, 10);
-Character * character = new Character(10, 1.5, 10);
+Ground * ground;
+Character * character;
 
 
+void createGameObjects(){
+    //Ground
+    ground = new Ground(10, 0, 10);
+    
+    //Character
+    character = new Character(18.5, 1.5, 18.5);
+    
+    //UBOX
+    map[3][3] = Elements::UBOX;
+    ubox_vec.push_back(new UBox(3.5, 1.0, 3.5, 3, 3));
+    
+    map[4][3] = Elements::UBOX;
+    ubox_vec.push_back(new UBox(4.5, 1.0, 3.5, 4, 3));
+    
+    map[3][4] = Elements::UBOX;
+    ubox_vec.push_back(new UBox(3.5, 1.0, 4.5, 3, 4));
+    
+    map[4][4] = Elements::UBOX;
+    ubox_vec.push_back(new UBox(4.5, 1.0, 4.5, 4, 4));
+    
+    
+    map[15][3] = Elements::UBOX;
+    ubox_vec.push_back(new UBox(15.5, 1.0, 3.5, 15, 3));
+    
+    map[16][3] = Elements::UBOX;
+    ubox_vec.push_back(new UBox(16.5, 1.0, 3.5, 16, 3));
+    
+    map[15][4] = Elements::UBOX;
+    ubox_vec.push_back(new UBox(15.5, 1.0, 4.5, 15, 4));
+    
+    map[16][4] = Elements::UBOX;
+    ubox_vec.push_back(new UBox(16.5, 1.0, 4.5, 16, 4));
+    
+    
+    map[3][15] = Elements::UBOX;
+    ubox_vec.push_back(new UBox(3.5, 1.0, 15.5, 3, 15));
+    
+    map[4][15] = Elements::UBOX;
+    ubox_vec.push_back(new UBox(4.5, 1.0, 15.5, 4, 15));
+    
+    map[3][16] = Elements::UBOX;
+    ubox_vec.push_back(new UBox(3.5, 1.0, 16.5, 3, 16));
+    
+    map[4][16] = Elements::UBOX;
+    ubox_vec.push_back(new UBox(4.5, 1.0, 16.5, 4, 16));
+    
+    
+    map[15][15] = Elements::UBOX;
+    ubox_vec.push_back(new UBox(15.5, 1.0, 15.5, 15, 15));
+    
+    map[16][15] = Elements::UBOX;
+    ubox_vec.push_back(new UBox(16.5, 1.0, 15.5, 16, 15));
+    
+    map[15][16] = Elements::UBOX;
+    ubox_vec.push_back(new UBox(15.5, 1.0, 16.5, 15, 16));
+    
+    map[16][16] = Elements::UBOX;
+    ubox_vec.push_back(new UBox(16.5, 1.0, 16.5, 16, 16));
+    
+    
+    for(int i = 8; i <= 11; i++){
+        map[i][9] = Elements::UBOX;
+        ubox_vec.push_back(new UBox((double)i + 0.5, 1.0, 9.5, i, 9));
+        
+        map[i][10] = Elements::UBOX;
+        ubox_vec.push_back(new UBox((double)i + 0.5, 1.0, 10.5, i, 10));
+    }
+    
+    
+    
+    //BBOX
+    
+    for(int i = 0; i <= 6 ; i++){
+        map[i][5] = Elements::BBOX;
+        bbox_vec.push_back(new BBox((double)i + 0.5, 1.0, 5.5, i, 5));
+        
+        map[i][6] = Elements::BBOX;
+        bbox_vec.push_back(new BBox((double)i + 0.5, 1.0, 6.5, i, 6));
+        
+        
+        map[i][9] = Elements::BBOX;
+        bbox_vec.push_back(new BBox((double)i + 0.5, 1.0, 9.5, i, 9));
+        
+        map[i][10] = Elements::BBOX;
+        bbox_vec.push_back(new BBox((double)i + 0.5, 1.0, 10.5, i, 10));
+        
+        
+        map[i][13] = Elements::BBOX;
+        bbox_vec.push_back(new BBox((double)i + 0.5, 1.0, 13.5, i, 13));
+        
+        map[i][14] = Elements::BBOX;
+        bbox_vec.push_back(new BBox((double)i + 0.5, 1.0, 14.5, i, 14));
 
+    }
+    
+    for(int i = 13; i <= 19; i++){
+        map[i][5] = Elements::BBOX;
+        bbox_vec.push_back(new BBox((double)i + 0.5, 1.0, 5.5, i, 5));
+        
+        map[i][6] = Elements::BBOX;
+        bbox_vec.push_back(new BBox((double)i + 0.5, 1.0, 6.5, i, 6));
+        
+        
+        map[i][9] = Elements::BBOX;
+        bbox_vec.push_back(new BBox((double)i + 0.5, 1.0, 9.5, i, 9));
+        
+        map[i][10] = Elements::BBOX;
+        bbox_vec.push_back(new BBox((double)i + 0.5, 1.0, 10.5, i, 10));
+        
+        
+        map[i][13] = Elements::BBOX;
+        bbox_vec.push_back(new BBox((double)i + 0.5, 1.0, 13.5, i, 13));
+        
+        map[i][14] = Elements::BBOX;
+        bbox_vec.push_back(new BBox((double)i + 0.5, 1.0, 14.5, i, 14));
+    }
+    
+    for(int i = 9; i <= 10; i++){
+        map[i][5] = Elements::BBOX;
+        bbox_vec.push_back(new BBox((double)i + 0.5, 1.0, 5.5, i, 5));
+        
+        map[i][6] = Elements::BBOX;
+        bbox_vec.push_back(new BBox((double)i + 0.5, 1.0, 6.5, i, 6));
+        
+        map[i][13] = Elements::BBOX;
+        bbox_vec.push_back(new BBox((double)i + 0.5, 1.0, 13.5, i, 13));
+        
+        map[i][14] = Elements::BBOX;
+        bbox_vec.push_back(new BBox((double)i + 0.5, 1.0, 14.5, i, 14));
+        
+        
+        
+        map[7][i] = Elements::BBOX;
+        bbox_vec.push_back(new BBox(7.5, 1.0, (double)i + 0.5, 7, i));
+        
+        map[12][i] = Elements::BBOX;
+        bbox_vec.push_back(new BBox(12.5, 1.0, (double)i + 0.5, 12, i));
+
+    }
+    
+    for(int i = 0; i <= 4; i++){
+        map[5][i] = Elements::BBOX;
+        bbox_vec.push_back(new BBox(5.5, 1.0, (double)i + 0.5, 5, i));
+        
+        map[6][i] = Elements::BBOX;
+        bbox_vec.push_back(new BBox(6.5, 1.0, (double)i + 0.5, 6, i));
+        
+        
+        map[9][i] = Elements::BBOX;
+        bbox_vec.push_back(new BBox(9.5, 1.0, (double)i + 0.5, 9, i));
+        
+        map[10][i] = Elements::BBOX;
+        bbox_vec.push_back(new BBox(10.5, 1.0, (double)i + 0.5, 10, i));
+        
+        
+        map[13][i] = Elements::BBOX;
+        bbox_vec.push_back(new BBox(13.5, 1.0, (double)i + 0.5, 13, i));
+        
+        map[14][i] = Elements::BBOX;
+        bbox_vec.push_back(new BBox(14.5, 1.0, (double)i + 0.5, 14, i));
+    }
+    
+    for(int i = 15; i <= 19; i++){
+        map[5][i] = Elements::BBOX;
+        bbox_vec.push_back(new BBox(5.5, 1.0, (double)i + 0.5, 5, i));
+        
+        map[6][i] = Elements::BBOX;
+        bbox_vec.push_back(new BBox(6.5, 1.0, (double)i + 0.5, 6, i));
+        
+        
+        map[9][i] = Elements::BBOX;
+        bbox_vec.push_back(new BBox(9.5, 1.0, (double)i + 0.5, 9, i));
+        
+        map[10][i] = Elements::BBOX;
+        bbox_vec.push_back(new BBox(10.5, 1.0, (double)i + 0.5, 10, i));
+        
+        
+        map[13][i] = Elements::BBOX;
+        bbox_vec.push_back(new BBox(13.5, 1.0, (double)i + 0.5, 13, i));
+        
+        map[14][i] = Elements::BBOX;
+        bbox_vec.push_back(new BBox(14.5, 1.0, (double)i + 0.5, 14, i));
+    }
+    
+    for(int i = 6; i <= 13; i++){
+        map[i][7] = Elements::BBOX;
+        bbox_vec.push_back(new BBox((double)i + 0.5, 1.0, 7.5, i, 7));
+        
+        map[i][8] = Elements::BBOX;
+        bbox_vec.push_back(new BBox((double)i + 0.5, 1.0, 8.5, i, 8));
+        
+        
+        map[i][11] = Elements::BBOX;
+        bbox_vec.push_back(new BBox((double)i + 0.5, 1.0, 11.5, i, 11));
+        
+        map[i][12] = Elements::BBOX;
+        bbox_vec.push_back(new BBox((double)i + 0.5, 1.0, 12.5, i, 12));
+    }
+    
+    
+    
+
+    
+}
 
 void initialize_bbox(){
     
-    map[14][10] = Elements::BBOX;
-    bbox_vec.push_back(new BBox(14.5, 1.0, 10.5, 14, 10));
-    
-    map[15][11] = Elements::BBOX;
-    bbox_vec.push_back(new BBox(15.5, 1.0, 11.5, 15, 11));
-    
     bool res = loadOBJ("BBox.obj", vertices_bbox, uvs_bbox, normals_bbox);
-    Texture_bbox = loadDDS("uvtemplate.DDS");
+    Texture_bbox = loadDDS("bbox.DDS");
     TextureID_bbox  = glGetUniformLocation(programID, "myTextureSampler");
     
     indexVBO(vertices_bbox, uvs_bbox, normals_bbox, indices_bbox, indexed_vertices_bbox, indexed_uvs_bbox, indexed_normals_bbox);
@@ -171,11 +368,7 @@ void initialize_bbox(){
 
 void initialize_ubox(){
     
-    map[2][2] = Elements::UBOX;
-    ubox_vec.push_back(new UBox(2.5, 1.0, 2.5, 2, 2));
     
-    map[18][19] = Elements::UBOX;
-    ubox_vec.push_back(new UBox(18.5, 1.0, 19.5, 18, 19));
     
     bool res = loadOBJ("Ubox.obj", vertices_ubox, uvs_ubox, normals_ubox);
     Texture_ubox = loadDDS("Ubox.DDS");
@@ -317,9 +510,15 @@ void draw_objects(){
         ubox_vec[i]->draw(Model * glm::translate(ubox_vec[i]->position));
     }
     
-    //water->draw(Model* glm::translate(water->position));
+    //BOMB
     for(int i = 0; i < bomb_vec.size(); i++){
-        bomb_vec[i]->draw(Model * glm::translate(bomb_vec[i]->position));
+        int temptime = bomb_vec[i]->remain_time;
+        if((temptime <= 200 && temptime > 150) || (temptime <= 100 && temptime > 50)){
+            bomb_vec[i]->draw(Model * glm::translate(bomb_vec[i]->position));
+        }else{
+            bomb_vec[i]->draw(Model * glm::translate(bomb_vec[i]->position) * glm::scale(glm::vec3(1.2f, 1.0f, 1.2f)));
+        }
+        
     }
     
     for(int i = 0; i < water_vec.size(); i++){
@@ -541,6 +740,7 @@ int main( void )
 	}
     
     //Initialize all Objects
+    createGameObjects();
     initialize_objects();
     
     //
