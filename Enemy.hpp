@@ -40,6 +40,9 @@ public:
     int index_x;
     int index_z;
     int health = 100;
+    bool flag = true;
+    bool oldflag = flag;
+    int flagcount = 150;
 
     double random_force_limit;
     double hunger_weight;

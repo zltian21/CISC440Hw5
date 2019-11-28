@@ -92,6 +92,7 @@ bool Enemy::compute_hunger_force(){
         hunger_force += forward;
         
         if(hunger_force.x != 0.0 && hunger_force.y != 0.0){
+            
             int temp = rand()%2;
             if(temp == 0){
                 hunger_force.y = 0.0;
@@ -107,6 +108,7 @@ bool Enemy::compute_hunger_force(){
     
     if(count > 0){
         hunger_force *= (float) hunger_weight;
+        flag = !flag;
         return true;
     }else{
         return false;
@@ -115,29 +117,41 @@ bool Enemy::compute_hunger_force(){
 
 void Enemy::updateVelocity(){
     compute_hunger_force();
+    glm::vec2 temp = new_velocity;
     new_velocity = hunger_force;
 
     
     
     if(new_velocity.x == 0 && new_velocity.y == 0){
-        srand(time(NULL));
-        int temp = rand()%2;
-        if(temp == 0){
-            temp = rand()%2;
-            if(temp == 0){
-                new_velocity.x +=  random_force_limit;
+        if(flag == oldflag){
+            flagcount--;
+            if(flagcount <= 0){
+                flagcount = 150;
+                int temp = rand()%2;
+                
+                if(temp == 0){
+                    temp = rand()%2;
+                    if(temp == 0){
+                        new_velocity.x +=  random_force_limit;
+                    }else{
+                        new_velocity.x -=  random_force_limit;
+                    }
+                
+                }else{
+                    temp = rand()%2;
+                    if(temp == 0){
+                        new_velocity.y +=  random_force_limit;
+                    }else{
+                        new_velocity.y -=  random_force_limit;
+                    }
+                }
             }else{
-                new_velocity.x -=  random_force_limit;
+                new_velocity = temp;
             }
-        
         }else{
-            temp = rand()%2;
-            if(temp == 0){
-                new_velocity.y +=  random_force_limit;
-            }else{
-                new_velocity.y -=  random_force_limit;
-            }
+            oldflag = flag;
         }
+        
     }
 }
 
@@ -188,6 +202,21 @@ void Enemy::checkBBox(){
 void Enemy::update(){
     calculate_predator_character_squared_distances();
     updateVelocity();
+    if(new_velocity.y == 0 && new_velocity.x == 0){
+        direction = S;
+    }else if(new_velocity.x == 0){
+        if(new_velocity.y > 0){
+            direction = S;
+        }else{
+            direction = N;
+        }
+    }else if(new_velocity.y == 0){
+        if(new_velocity.x > 0){
+            direction = E;
+        }else{
+            direction = W;
+        }
+    }
     new_position = glm::vec3(position.x + new_velocity.x, position.y, position.z + new_velocity.y);
     if((new_position.x - length/2) <= 0.0){
             new_position.x = 0.0 + length/2;

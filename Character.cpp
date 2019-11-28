@@ -5,6 +5,8 @@
 #include "BBox.hpp"
 #include "UBox.hpp"
 #include "Bomb.hpp"
+#include "Water.hpp"
+#include "Enemy.hpp"
 #include <string.h>
 #include <common/shader.hpp>
 #include <common/texture.hpp>
@@ -27,6 +29,8 @@ extern Ground ground;
 extern std::vector<BBox *> bbox_vec;
 extern std::vector<UBox *> ubox_vec;
 extern std::vector<Bomb *> bomb_vec;
+extern std::vector<Enemy *> enemy_vec;
+extern std::vector<Water *> water_vec;
 
 Character::Character(
     double pos_x, double pos_y, double pos_z
@@ -138,6 +142,37 @@ void Character::draw(glm::mat4 Model){
 //    return collisionX && collisionY;
 
 //}
+
+
+void Character::checkEnemy(){
+    for(int i = 0; i < enemy_vec.size(); i++){
+        bool collisionX = new_position.x + length/2 > enemy_vec[i]->critical_position.x - enemy_vec[i]->length/2 &&
+        enemy_vec[i]->critical_position.x + enemy_vec[i]->length/2 > new_position.x - length/2;
+
+        bool collisionZ = new_position.z + length/2 > enemy_vec[i]->critical_position.y - enemy_vec[i]->length/2 &&
+        enemy_vec[i]->critical_position.y + enemy_vec[i]->length/2 > new_position.z - length/2;
+
+        if(collisionX && collisionZ){
+            health--;
+//            cout << health << endl;
+        }
+    }
+}
+
+void Character::checkWater(){
+    
+    for(int i = 0; i < water_vec.size(); i++){
+        
+        for(int j = 0; j < 13; j++){
+            if((int)critical_position.x == water_vec[i]->range[j][0] && (int)critical_position.y == water_vec[i]->range[j][1]){
+                health--;
+                cout << health << endl;
+            }
+        }
+    }
+}
+
+
 void Character::checkBomb(){
     for(int i = 0; i < bomb_vec.size(); i++){
         if(bomb_vec[i]->on_flag){
@@ -210,6 +245,11 @@ void Character::update(){
     checkBBox();
     checkUBox();
     checkBomb();
+    checkEnemy();
+    checkWater();
+    if(health <= 0){
+        cout << "GAME OVER" << endl;
+    }
 
     
     position = new_position;

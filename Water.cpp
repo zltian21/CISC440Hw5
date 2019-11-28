@@ -100,7 +100,6 @@ void Water::update(){
                 for(std::vector<Enemy *>::iterator itr = enemy_vec.begin(); itr != enemy_vec.end();++itr){
                     if((*itr)->index_x == range[i][0] && (*itr)->index_z == range[i][1]){
                         (*itr)->health --;
-                        cout << (*itr)->health << endl;
                         if((*itr)->health <= 0){
                             map[range[i][0]][range[i][1]] = Elements::EMPTY;
                             Enemy * temp = *itr;

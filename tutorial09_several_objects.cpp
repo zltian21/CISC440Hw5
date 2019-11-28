@@ -1,6 +1,7 @@
 // Include standard headers
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <vector>
 #include "ground.hpp"
 #include "Character.hpp"
@@ -154,14 +155,33 @@ Elements map[20][20];
 
 Ground * ground;
 Character * character;
+bool newGameFlag = true;
 
 
 void createGameObjects(){
-    //Ground
-    ground = new Ground(10, 0, 10);
     
-    //Character
-    character = new Character(18.5, 1.5, 18.5);
+    if(newGameFlag){
+        //Ground
+        newGameFlag = false;
+        ground = new Ground(10, 0, 10);
+        
+        //Character
+        character = new Character(18.5, 1.5, 18.5);
+    }else{
+        character->position.x = 18.5;
+        character->position.z = 18.5;
+        
+        character->new_position = character->position;
+        
+        character->critical_position.x = character->position.x;
+        character->critical_position.y = character->position.z;
+        character->direction = SOUTH;
+        character->health = 350;
+        character->velocity = glm::vec2(0, 0);
+    }
+    
+    
+    
     
     //UBOX
     map[3][3] = Elements::UBOX;
@@ -358,13 +378,13 @@ void createGameObjects(){
     
     //Enemy  1   18
     map[1][18] = Elements::ENEMY;
-    enemy_vec.push_back(new Enemy(1.5, 1.0, 18.5, N, 0.05, 0.0, 50.0, 30, 1, 18));
+    enemy_vec.push_back(new Enemy(1.5, 1.0, 18.5, S, 0.05, 0.0, 50.0, 30, 1, 18));
     
     map[1][1] = Elements::ENEMY;
-    enemy_vec.push_back(new Enemy(1.5, 1.0, 1.5, N, 0.05, 0.0, 50.0, 30, 1, 1));
+    enemy_vec.push_back(new Enemy(1.5, 1.0, 1.5, S, 0.05, 0.0, 50.0, 30, 1, 1));
     
     map[18][1] = Elements::ENEMY;
-    enemy_vec.push_back(new Enemy(18.5, 1.0, 1.5, N, 0.05, 0.0, 50.0, 30, 18, 1));
+    enemy_vec.push_back(new Enemy(18.5, 1.0, 1.5, S, 0.05, 0.0, 50.0, 30, 18, 1));
     
     
     
@@ -619,7 +639,28 @@ void draw_objects(){
     
     //ENEMY
     for(int i = 0; i < enemy_vec.size(); i++){
-        enemy_vec[i]->draw(Model * glm::translate(enemy_vec[i]->position));
+        switch(enemy_vec[i]->direction){
+            case S:
+                enemy_vec[i]->draw(Model * glm::translate(enemy_vec[i]->position));
+                break;
+            case N:
+                enemy_vec[i]->draw(Model * glm::translate(enemy_vec[i]->position)* glm::rotate((float) (1.00*M_PI),
+                                                                                        glm::vec3(0.0f, 1.0f,0.0f)
+                                                                                               ));
+                break;
+            case W:
+                enemy_vec[i]->draw(Model * glm::translate(enemy_vec[i]->position)* glm::rotate((float) (1.5*M_PI),
+                                                                                            glm::vec3(0.0f, 1.0f, 0.0f)
+                                                                                            ));
+                break;
+            case E:
+                enemy_vec[i]->draw(Model * glm::translate(enemy_vec[i]->position)* glm::rotate((float) (0.5*M_PI),
+                                                                                       glm::vec3(0.0f, 1.0f, 0.0f)
+                                                                                                    ));
+                break;
+                                   
+        }
+        
 
     }
         
@@ -656,10 +697,7 @@ void update(){
     for(std::vector<Enemy *>::iterator it = enemy_vec.begin(); it != enemy_vec.end();++it){
         (*it)->update();
     }
-    
-    //Elements map[20][20];
-    //std::vector<std::vector<Water *> > water_vec;
-    //bomb_vec.push_back(new Bomb((double)temp_x + 0.5, 1, (double)temp_z + 0.5, temp_x, temp_z));
+
    
     for(int i = 0; i < 20; i++){
         for(int j = 0; j < 20; j++){
@@ -669,14 +707,6 @@ void update(){
             }
         }
     }
-//    for(int i = 0; i < bomb_vec.size(); i++){
-//        // cout << "Hello " << endl;
-//        if(bomb_vec[i]->timesUp() == true){
-//            map[bomb_vec[i]->index_x][bomb_vec[i]->index_z] = Elements::EMPTY;
-//            bomb_vec.erase(bomb_vec.begin()+1);
-//
-//        }
-//    }
     
 }
 
@@ -707,20 +737,35 @@ void setup_camera(){
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods){
     
+    
+    if(key == GLFW_KEY_N && (action == GLFW_PRESS)){
+
+        for(int i = 0; i < 20; i++){
+            for(int j = 0; j < 20; j++){
+                map[i][j] = Elements::EMPTY;
+            }
+        }
+        enemy_vec.clear();
+        bbox_vec.clear();
+        ubox_vec.clear();
+        water_vec.clear();
+        bomb_vec.clear();
+        createGameObjects();
+    }
     //CAMERA CONTROL
-    if (key == GLFW_KEY_0 && (action == GLFW_PRESS || action == GLFW_REPEAT)){
+    else if (key == GLFW_KEY_0 && (action == GLFW_PRESS)){
         cam_x = 10;
         cam_y = 23;
         cam_z = 25;
-    }else if(key == GLFW_KEY_L && (action == GLFW_PRESS || action == GLFW_REPEAT)){
+    }else if(key == GLFW_KEY_L && (action == GLFW_PRESS)){
         cam_x = 10;
         cam_y = 0;
         cam_z = 40;
-    }else if(key == GLFW_KEY_O && (action == GLFW_PRESS || action == GLFW_REPEAT)){
+    }else if(key == GLFW_KEY_O && (action == GLFW_PRESS)){
         cam_x = 10;
         cam_y = 27;
         cam_z = 10.1;
-    }else if(key == GLFW_KEY_P && (action == GLFW_PRESS || action == GLFW_REPEAT)){
+    }else if(key == GLFW_KEY_P && (action == GLFW_PRESS)){
         cam_x = 40;
         cam_y = 0;
         cam_z = 10;
@@ -738,7 +783,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         cam_y += 0.3;
     }else if(key == GLFW_KEY_F && (action == GLFW_PRESS || action == GLFW_REPEAT)){
         cam_y -= 0.3;
-    }
+    }else
     
     //CHARACTER CONTROL
     if(key == GLFW_KEY_UP && (action == GLFW_PRESS || action == GLFW_REPEAT)){
@@ -791,6 +836,7 @@ int main( void )
         }
     }
 
+    srand(time(NULL));
 	glfwWindowHint(GLFW_SAMPLES, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
