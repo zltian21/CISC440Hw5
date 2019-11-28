@@ -5,6 +5,7 @@ enum class Elements{
     UBOX,
     BOMB,
     WATERPR,
+    ENEMY,
     WATERDO
 };
 

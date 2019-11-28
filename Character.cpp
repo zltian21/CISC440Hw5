@@ -191,20 +191,6 @@ void Character::checkBBox(){
 }
 void Character::update(){
     
-//    position = glm::vec3(position.x + velocity.x, position.y, position.z + velocity.y);
-//    if((position.x - length/2) <= -10.0){
-//        position.x = -10.0 + length/2;
-//    }
-//    if((position.x + length/2) >= 10.0){
-//        position.x = 10.0 - length/2;
-//    }
-//
-//    if((position.z - length/2) <= -10.0){
-//        position.z = -10.0 + length/2;
-//    }
-//    if((position.z + length/2) >= 10.0){
-//        position.z = 10.0 - length/2;
-//    }
       new_position = glm::vec3(position.x + velocity.x, position.y, position.z + velocity.y);
     
             if((new_position.x - length/2) <= 0.0){

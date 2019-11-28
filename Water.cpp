@@ -4,6 +4,7 @@
 #include "Character.hpp"
 #include "Bomb.hpp"
 #include "BBox.hpp"
+#include "Enemy.hpp"
 #include <string.h>
 #include <common/shader.hpp>
 #include <common/texture.hpp>
@@ -36,6 +37,7 @@ extern Elements map[20][20];
 extern Character * character;
 
 extern std::vector<BBox *> bbox_vec;
+extern std::vector<Enemy *> enemy_vec;
 
 
 Water::Water(
@@ -74,10 +76,10 @@ void Water::update(){
                 
                 for(std::vector<Bomb *>::iterator it = bomb_vec.begin(); it != bomb_vec.end();++it){
 
-                    cout << (*it)->index_x << endl;
+//                    cout << (*it)->index_x << endl;
                     if((*it)->index_x == range[i][0] && (*it)->index_z == range[i][1]){
-                        cout << (*it)->index_x << endl;
-                        cout << range[i][0] << " " << range[i][1] << endl;
+//                        cout << (*it)->index_x << endl;
+//                        cout << range[i][0] << " " << range[i][1] << endl;
                         (*it)->remain_time = 0;
                     }
                 }
@@ -87,11 +89,26 @@ void Water::update(){
 //                    
                     if((*itr)->index_x == range[i][0] && (*itr)->index_z == range[i][1]){
                         map[range[i][0]][range[i][1]] = Elements::EMPTY;
-                        cout << "Hello" << endl;
+//                        cout << "Hello" << endl;
                         BBox * temp = *itr;
                         delete(temp);
                         itr = bbox_vec.erase(itr);
                         break;
+                    }
+                }
+            }else if(map[range[i][0]][range[i][1]] == Elements::ENEMY){
+                for(std::vector<Enemy *>::iterator itr = enemy_vec.begin(); itr != enemy_vec.end();++itr){
+                    if((*itr)->index_x == range[i][0] && (*itr)->index_z == range[i][1]){
+                        (*itr)->health --;
+                        cout << (*itr)->health << endl;
+                        if((*itr)->health <= 0){
+                            map[range[i][0]][range[i][1]] = Elements::EMPTY;
+                            Enemy * temp = *itr;
+                            delete(temp);
+                            itr = enemy_vec.erase(itr);
+                        }
+                        break;
+                        
                     }
                 }
             }

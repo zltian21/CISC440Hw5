@@ -8,6 +8,7 @@
 #include "Bomb.hpp"
 #include "Water.hpp"
 #include "UBox.hpp"
+#include "Enemy.hpp"
 #include "Elements.hpp"
 #include <iostream>
 
@@ -110,6 +111,24 @@ GLuint uvbuffer_water;
 GLuint normalbuffer_water;
 GLuint elementbuffer_water;
 
+//Enemy
+std::vector<glm::vec3> vertices_enemy;
+std::vector<glm::vec2> uvs_enemy;
+std::vector<glm::vec3> normals_enemy;
+
+GLuint Texture_enemy;
+GLuint TextureID_enemy;
+
+std::vector<unsigned short> indices_enemy;
+std::vector<glm::vec3> indexed_vertices_enemy;
+std::vector<glm::vec2> indexed_uvs_enemy;
+std::vector<glm::vec3> indexed_normals_enemy;
+
+
+GLuint vertexbuffer_enemy;
+GLuint uvbuffer_enemy;
+GLuint normalbuffer_enemy;
+GLuint elementbuffer_enemy;
 
 //camera
 double cam_x = 10; //0
@@ -128,6 +147,8 @@ std::vector<Bomb *> bomb_vec;
 std::vector<Water *> water_vec;
 std::vector<BBox *> bbox_vec;
 std::vector<UBox *> ubox_vec;
+std::vector<Enemy *> enemy_vec;
+
 
 Elements map[20][20];
 
@@ -335,9 +356,19 @@ void createGameObjects(){
     }
     
     
+    //Enemy  1   18
+    map[1][18] = Elements::ENEMY;
+    enemy_vec.push_back(new Enemy(1.5, 1.0, 18.5, N, 0.05, 0.0, 50.0, 30, 1, 18));
     
-
+    map[1][1] = Elements::ENEMY;
+    enemy_vec.push_back(new Enemy(1.5, 1.0, 1.5, N, 0.05, 0.0, 50.0, 30, 1, 1));
     
+    map[18][1] = Elements::ENEMY;
+    enemy_vec.push_back(new Enemy(18.5, 1.0, 1.5, N, 0.05, 0.0, 50.0, 30, 18, 1));
+    
+    
+    
+       
 }
 
 void initialize_bbox(){
@@ -444,6 +475,30 @@ void initialize_water(){
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_water.size() * sizeof(unsigned short), &indices_water[0] , GL_STATIC_DRAW);
 }
 
+void initialize_enemy(){
+    bool res = loadOBJ("enemy.obj", vertices_enemy, uvs_enemy, normals_enemy);
+    Texture_enemy = loadDDS("enemy.DDS");
+    TextureID_enemy  = glGetUniformLocation(programID, "myTextureSampler");
+    
+    indexVBO(vertices_enemy, uvs_enemy, normals_enemy, indices_enemy, indexed_vertices_enemy, indexed_uvs_enemy, indexed_normals_enemy);
+    
+    glGenBuffers(1, &vertexbuffer_enemy);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer_enemy);
+    glBufferData(GL_ARRAY_BUFFER, indexed_vertices_enemy.size() * sizeof(glm::vec3), &indexed_vertices_enemy[0], GL_STATIC_DRAW);
+    
+    glGenBuffers(1, &uvbuffer_enemy);
+    glBindBuffer(GL_ARRAY_BUFFER, uvbuffer_enemy);
+    glBufferData(GL_ARRAY_BUFFER, indexed_uvs_enemy.size() * sizeof(glm::vec2), &indexed_uvs_enemy[0], GL_STATIC_DRAW);
+    
+    glGenBuffers(1, &normalbuffer_enemy);
+    glBindBuffer(GL_ARRAY_BUFFER, normalbuffer_enemy);
+    glBufferData(GL_ARRAY_BUFFER, indexed_normals_enemy.size() * sizeof(glm::vec3), &indexed_normals_enemy[0], GL_STATIC_DRAW);
+    
+    glGenBuffers(1, &elementbuffer_enemy);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer_enemy);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_enemy.size() * sizeof(unsigned short), &indices_enemy[0] , GL_STATIC_DRAW);
+}
+
 
 void cleanUp_bbox(){
     glDeleteBuffers(1, &vertexbuffer_bbox);
@@ -485,6 +540,16 @@ void cleanUp_water(){
     glDeleteVertexArrays(1, &VertexArrayID);
 }
 
+void cleanUp_enemy(){
+    glDeleteBuffers(1, &vertexbuffer_enemy);
+    glDeleteBuffers(1, &uvbuffer_enemy);
+    glDeleteBuffers(1, &normalbuffer_enemy);
+    glDeleteBuffers(1, &elementbuffer_enemy);
+    glDeleteProgram(programID);
+    glDeleteTextures(1, &Texture_enemy);
+    glDeleteVertexArrays(1, &VertexArrayID);
+}
+
 
 void initialize_objects(){
     ground->initialize();
@@ -493,6 +558,7 @@ void initialize_objects(){
     initialize_ubox();
     initialize_bomb();
     initialize_water();
+    initialize_enemy();
 
 }
 
@@ -521,12 +587,14 @@ void draw_objects(){
         
     }
     
+    //WATER
     for(int i = 0; i < water_vec.size(); i++){
         water_vec[i]->draw(Model * glm::translate(water_vec[i]->position));
         water_vec[i]->draw(Model * glm::translate(water_vec[i]->position) * glm::rotate((float) (0.50*M_PI),
         glm::vec3(0.0f, 1.0f, 0.0f)));
     }
     
+    //CHARACTER
     switch(character->direction){
         case SOUTH:
             character->draw(Model * glm::translate(character->position));
@@ -549,6 +617,12 @@ void draw_objects(){
             
     }
     
+    //ENEMY
+    for(int i = 0; i < enemy_vec.size(); i++){
+        enemy_vec[i]->draw(Model * glm::translate(enemy_vec[i]->position));
+
+    }
+        
 }
 
 void update(){
@@ -579,7 +653,9 @@ void update(){
         }
     }
     
-    
+    for(std::vector<Enemy *>::iterator it = enemy_vec.begin(); it != enemy_vec.end();++it){
+        (*it)->update();
+    }
     
     //Elements map[20][20];
     //std::vector<std::vector<Water *> > water_vec;
@@ -611,6 +687,7 @@ void clean_up(){
     cleanUp_ubox();
     cleanUp_bomb();
     cleanUp_water();
+    cleanUp_enemy();
     
 }
 
@@ -818,6 +895,7 @@ int main( void )
         setup_light();
         update();
         draw_objects();
+
 
 //		// Compute the MVP matrix from keyboard and mouse input
 //		computeMatricesFromInputs();
