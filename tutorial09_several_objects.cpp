@@ -4,13 +4,14 @@
 #include <time.h>
 #include <vector>
 #include "ground.hpp"
-#include "Character.hpp"
+//#include "Character.hpp"
 #include "BBox.hpp"
 #include "Bomb.hpp"
 #include "Water.hpp"
 #include "UBox.hpp"
-#include "Enemy.hpp"
+//#include "Enemy.hpp"
 #include "Elements.hpp"
+#include "Billboard.hpp"
 #include <iostream>
 
 // Include GLEW
@@ -131,6 +132,36 @@ GLuint uvbuffer_enemy;
 GLuint normalbuffer_enemy;
 GLuint elementbuffer_enemy;
 
+//Billboards
+GLuint programID_billboard;
+GLuint CameraRight_worldspace_ID;
+GLuint CameraUp_worldspace_ID;
+GLuint ViewProjMatrixID;
+GLuint BillboardPosID;
+GLuint BillboardSizeID;
+GLuint LifeLevelID;
+GLuint TextureID_billboard;
+GLuint Texture_billboard;
+static const GLfloat g_vertex_buffer_data[] = {
+     -0.5f, -0.5f, 0.0f,
+      0.5f, -0.5f, 0.0f,
+     -0.5f,  0.5f, 0.0f,
+      0.5f,  0.5f, 0.0f,
+};
+GLuint billboard_vertex_buffer;
+glm::mat4 ViewProjectionMatrix;
+
+//Billboard_E
+GLuint programID_billboard_E;
+GLuint CameraRight_worldspace_ID_E;
+GLuint CameraUp_worldspace_ID_E;
+GLuint ViewProjMatrixID_E;
+GLuint BillboardPosID_E;
+GLuint BillboardSizeID_E;
+GLuint LifeLevelID_E;
+GLuint TextureID_billboard_E;
+
+
 //camera
 double cam_x = 10; //0
 double cam_y = 23; // 13
@@ -141,7 +172,6 @@ glm::mat4 View;
 glm::mat4 Model;
 glm::mat4 Projection;
 
-
 //Game Objects
 
 std::vector<Bomb *> bomb_vec;
@@ -149,7 +179,10 @@ std::vector<Water *> water_vec;
 std::vector<BBox *> bbox_vec;
 std::vector<UBox *> ubox_vec;
 std::vector<Enemy *> enemy_vec;
+std::vector<Billboard *> billboard_vec;
 
+Bomb * overBomb = new Bomb(10.5, 1.0, 10.5, -100, -100);
+int overIndex = 100;
 
 Elements map[20][20];
 
@@ -167,6 +200,7 @@ void createGameObjects(){
         
         //Character
         character = new Character(18.5, 1.5, 18.5);
+        billboard_vec.push_back(new Billboard(18.5, 1.5, 18.5, 0, character, NULL));
     }else{
         character->position.x = 18.5;
         character->position.z = 18.5;
@@ -178,6 +212,8 @@ void createGameObjects(){
         character->direction = SOUTH;
         character->health = 350;
         character->velocity = glm::vec2(0, 0);
+        character->current_bomb = 0;
+        billboard_vec.push_back(new Billboard(18.5, 1.5, 18.5, 0, character, NULL));
     }
     
     
@@ -379,17 +415,70 @@ void createGameObjects(){
     //Enemy  1   18
     map[1][18] = Elements::ENEMY;
     enemy_vec.push_back(new Enemy(1.5, 1.0, 18.5, S, 0.05, 0.0, 50.0, 30, 1, 18));
+    billboard_vec.push_back(new Billboard(1.5, 1.5, 18.5, 1, NULL, enemy_vec[0]));
+    
     
     map[1][1] = Elements::ENEMY;
     enemy_vec.push_back(new Enemy(1.5, 1.0, 1.5, S, 0.05, 0.0, 50.0, 30, 1, 1));
+    billboard_vec.push_back(new Billboard(1.5, 1.5, 1.5, 1, NULL, enemy_vec[1]));
     
     map[18][1] = Elements::ENEMY;
     enemy_vec.push_back(new Enemy(18.5, 1.0, 1.5, S, 0.05, 0.0, 50.0, 30, 18, 1));
+    billboard_vec.push_back(new Billboard(18.5, 1.5, 1.5, 1, NULL, enemy_vec[2]));
     
     
     
        
 }
+
+void initialize_billboard(){
+    //Billboards
+
+
+////Billboard_E
+
+
+//GLuint BillboardSizeID_E;
+//GLuint LifeLevelID_E;
+//GLuint TextureID_billboard_E;
+
+
+//    GLuint billboard_vertex_buffer;
+    programID_billboard = LoadShaders( "Billboard.vertexshader", "Billboard.fragmentshader" );
+    programID_billboard_E = LoadShaders( "Billboard.vertexshader", "Billboard_E.fragmentshader" );
+    
+    CameraRight_worldspace_ID  = glGetUniformLocation(programID_billboard, "CameraRight_worldspace");
+    CameraRight_worldspace_ID_E  = glGetUniformLocation(programID_billboard_E, "CameraRight_worldspace");
+    
+    CameraUp_worldspace_ID  = glGetUniformLocation(programID_billboard, "CameraUp_worldspace");
+    CameraUp_worldspace_ID_E  = glGetUniformLocation(programID_billboard_E, "CameraUp_worldspace");
+    
+    ViewProjMatrixID = glGetUniformLocation(programID_billboard, "VP");
+    ViewProjMatrixID_E = glGetUniformLocation(programID_billboard_E, "VP");
+    
+    BillboardPosID = glGetUniformLocation(programID_billboard, "BillboardPos");
+    BillboardPosID_E = glGetUniformLocation(programID_billboard_E, "BillboardPos");
+    
+    BillboardSizeID = glGetUniformLocation(programID_billboard, "BillboardSize");
+    BillboardSizeID_E = glGetUniformLocation(programID_billboard_E, "BillboardSize");
+    
+    LifeLevelID = glGetUniformLocation(programID_billboard, "LifeLevel");
+    LifeLevelID_E = glGetUniformLocation(programID_billboard_E, "LifeLevel");
+    
+    TextureID_billboard  = glGetUniformLocation(programID_billboard, "myTextureSampler");
+    TextureID_billboard_E  = glGetUniformLocation(programID_billboard_E, "myTextureSampler");
+    
+    Texture_billboard = loadDDS("ExampleBillboard.DDS");
+    
+    
+    glGenBuffers(1, &billboard_vertex_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, billboard_vertex_buffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_DYNAMIC_DRAW);
+//    ViewProjectionMatrix = Projection * View;
+//    glEnable(GL_BLEND);
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+
 
 void initialize_bbox(){
     
@@ -570,6 +659,14 @@ void cleanUp_enemy(){
     glDeleteVertexArrays(1, &VertexArrayID);
 }
 
+void cheanUp_billboard(){
+    glDeleteBuffers(1, &billboard_vertex_buffer);
+    glDeleteProgram(programID_billboard);
+    glDeleteProgram(programID_billboard_E);
+    glDeleteTextures(1, &Texture_billboard);
+    glDeleteVertexArrays(1, &VertexArrayID);
+}
+
 
 void initialize_objects(){
     ground->initialize();
@@ -579,98 +676,137 @@ void initialize_objects(){
     initialize_bomb();
     initialize_water();
     initialize_enemy();
-
+    initialize_billboard();
 }
 
 void draw_objects(){
-    //Ground
-    ground->draw(Model * glm::translate(ground->position));
     
-    //BBOX
-    for(int i = 0; i < bbox_vec.size(); i++){
-        bbox_vec[i]->draw(Model * glm::translate(bbox_vec[i]->position));
-    }
-    
-    //UBOX
-    for(int i = 0; i < ubox_vec.size(); i++){
-        ubox_vec[i]->draw(Model * glm::translate(ubox_vec[i]->position));
-    }
-    
-    //BOMB
-    for(int i = 0; i < bomb_vec.size(); i++){
-        int temptime = bomb_vec[i]->remain_time;
-        if((temptime <= 200 && temptime > 150) || (temptime <= 100 && temptime > 50)){
-            bomb_vec[i]->draw(Model * glm::translate(bomb_vec[i]->position));
-        }else{
-            bomb_vec[i]->draw(Model * glm::translate(bomb_vec[i]->position) * glm::scale(glm::vec3(1.2f, 1.0f, 1.2f)));
+    if(character->health > 0 && enemy_vec.size() > 0){
+        //Ground
+        ground->draw(Model * glm::translate(ground->position));
+        
+        //BBOX
+        for(int i = 0; i < bbox_vec.size(); i++){
+            bbox_vec[i]->draw(Model * glm::translate(bbox_vec[i]->position));
+        }
+        
+        //UBOX
+        for(int i = 0; i < ubox_vec.size(); i++){
+            ubox_vec[i]->draw(Model * glm::translate(ubox_vec[i]->position));
+        }
+        
+        //BOMB
+        for(int i = 0; i < bomb_vec.size(); i++){
+            int temptime = bomb_vec[i]->remain_time;
+            if((temptime <= 200 && temptime > 150) || (temptime <= 100 && temptime > 50)){
+                bomb_vec[i]->draw(Model * glm::translate(bomb_vec[i]->position));
+            }else{
+                bomb_vec[i]->draw(Model * glm::translate(bomb_vec[i]->position) * glm::scale(glm::vec3(1.2f, 1.0f, 1.2f)));
+            }
+        }
+        
+        //WATER
+        for(int i = 0; i < water_vec.size(); i++){
+            water_vec[i]->draw(Model * glm::translate(water_vec[i]->position));
+            water_vec[i]->draw(Model * glm::translate(water_vec[i]->position) * glm::rotate((float) (0.50*M_PI),
+            glm::vec3(0.0f, 1.0f, 0.0f)));
+        }
+        
+        //CHARACTER
+        switch(character->direction){
+            case SOUTH:
+                character->draw(Model * glm::translate(character->position));
+                break;
+            case NORTH:
+                character->draw(Model * glm::translate(character->position) * glm::rotate((float) (1.00*M_PI),
+                                                                                          glm::vec3(0.0f, 1.0f, 0.0f)
+                                                                                          ));
+                break;
+            case WEST:
+                character->draw(Model * glm::translate(character->position) * glm::rotate((float) (1.5*M_PI),
+                                                                                          glm::vec3(0.0f, 1.0f, 0.0f)
+                                                                                          ));
+                break;
+            case EAST:
+                character->draw(Model * glm::translate(character->position) * glm::rotate((float) (0.5*M_PI),
+                                                                                          glm::vec3(0.0f, 1.0f, 0.0f)
+                                                                                          ));
+                break;
+        }
+        
+        //ENEMY
+        for(int i = 0; i < enemy_vec.size(); i++){
+            switch(enemy_vec[i]->direction){
+                case S:
+                    enemy_vec[i]->draw(Model * glm::translate(enemy_vec[i]->position));
+                    break;
+                case N:
+                    enemy_vec[i]->draw(Model * glm::translate(enemy_vec[i]->position)* glm::rotate((float) (1.00*M_PI),
+                                                                                            glm::vec3(0.0f, 1.0f,0.0f)
+                                                                                                   ));
+                    break;
+                case W:
+                    enemy_vec[i]->draw(Model * glm::translate(enemy_vec[i]->position)* glm::rotate((float) (1.5*M_PI),
+                                                                                                glm::vec3(0.0f, 1.0f, 0.0f)
+                                                                                                ));
+                    break;
+                case E:
+                    enemy_vec[i]->draw(Model * glm::translate(enemy_vec[i]->position)* glm::rotate((float) (0.5*M_PI),
+                                                                                           glm::vec3(0.0f, 1.0f, 0.0f)
+                                                                                                        ));
+                    break;
+            }
+        }
+        
+        //BILLBOARD
+           for(int i = 0; i < billboard_vec.size(); i++){
+               billboard_vec[i]->draw();
+           }
+        
+    }else{
+        if(overIndex > 50 && overIndex <= 100){
+            overBomb->draw(Model * glm::translate(overBomb->position) * glm::scale(glm::vec3(6.0, 6.0, 6.0)));
+            overIndex--;
+        }else if(overIndex > 0 && overIndex <= 50){
+            overBomb->draw(Model * glm::translate(overBomb->position) * glm::scale(glm::vec3(5.0, 5.0, 5.0)));
+            overIndex--;
+        }else if(overIndex <= 0){
+            overBomb->draw(Model * glm::translate(overBomb->position) * glm::scale(glm::vec3(6.0, 6.0, 6.0)));
+            overIndex = 100;
         }
         
     }
     
-    //WATER
-    for(int i = 0; i < water_vec.size(); i++){
-        water_vec[i]->draw(Model * glm::translate(water_vec[i]->position));
-        water_vec[i]->draw(Model * glm::translate(water_vec[i]->position) * glm::rotate((float) (0.50*M_PI),
-        glm::vec3(0.0f, 1.0f, 0.0f)));
-    }
     
-    //CHARACTER
-    switch(character->direction){
-        case SOUTH:
-            character->draw(Model * glm::translate(character->position));
-            break;
-        case NORTH:
-            character->draw(Model * glm::translate(character->position) * glm::rotate((float) (1.00*M_PI),
-                                                                                      glm::vec3(0.0f, 1.0f, 0.0f)
-                                                                                      ));
-            break;
-        case WEST:
-            character->draw(Model * glm::translate(character->position) * glm::rotate((float) (1.5*M_PI),
-                                                                                      glm::vec3(0.0f, 1.0f, 0.0f)
-                                                                                      ));
-            break;
-        case EAST:
-            character->draw(Model * glm::translate(character->position) * glm::rotate((float) (0.5*M_PI),
-                                                                                      glm::vec3(0.0f, 1.0f, 0.0f)
-                                                                                      ));
-            break;
-            
-    }
-    
-    //ENEMY
-    for(int i = 0; i < enemy_vec.size(); i++){
-        switch(enemy_vec[i]->direction){
-            case S:
-                enemy_vec[i]->draw(Model * glm::translate(enemy_vec[i]->position));
-                break;
-            case N:
-                enemy_vec[i]->draw(Model * glm::translate(enemy_vec[i]->position)* glm::rotate((float) (1.00*M_PI),
-                                                                                        glm::vec3(0.0f, 1.0f,0.0f)
-                                                                                               ));
-                break;
-            case W:
-                enemy_vec[i]->draw(Model * glm::translate(enemy_vec[i]->position)* glm::rotate((float) (1.5*M_PI),
-                                                                                            glm::vec3(0.0f, 1.0f, 0.0f)
-                                                                                            ));
-                break;
-            case E:
-                enemy_vec[i]->draw(Model * glm::translate(enemy_vec[i]->position)* glm::rotate((float) (0.5*M_PI),
-                                                                                       glm::vec3(0.0f, 1.0f, 0.0f)
-                                                                                                    ));
-                break;
-                                   
-        }
-        
 
-    }
+    
+    
+    
+    
+    
+   
         
 }
 
 void update(){
+    
+    //BILLBORAD
+    for(std::vector<Billboard *>::iterator it = billboard_vec.begin(); it != billboard_vec.end();){
+        (*it)->update();
+        if((*it)->percent <= 0){
+            it = billboard_vec.erase(it);
+        }else{
+            ++it;
+        }
+    }
+    
+    //CHARACTER
     character->update();
     
+    //BOMB
     for(std::vector<Bomb *>::iterator it = bomb_vec.begin(); it != bomb_vec.end(); ){
         if((*it)->timesUp()){
+            character->current_bomb--;
             map[(*it)->index_x][(*it)->index_z] = Elements::WATERPR;
             Bomb * temp = *it;  //
             delete(temp);       //Not Sure
@@ -681,6 +817,7 @@ void update(){
         }
     }
     
+    //WATER
     for(std::vector<Water *>::iterator it = water_vec.begin(); it != water_vec.end();){
         if((*it)->timesUp()){
             map[(*it)->index_x][(*it)->index_z] = Elements::EMPTY;
@@ -694,11 +831,12 @@ void update(){
         }
     }
     
+    //ENEMY
     for(std::vector<Enemy *>::iterator it = enemy_vec.begin(); it != enemy_vec.end();++it){
         (*it)->update();
     }
 
-   
+   //WATER to DO
     for(int i = 0; i < 20; i++){
         for(int j = 0; j < 20; j++){
             if(map[i][j] == Elements::WATERPR){
@@ -707,6 +845,8 @@ void update(){
             }
         }
     }
+    
+    
     
 }
 
@@ -718,6 +858,7 @@ void clean_up(){
     cleanUp_bomb();
     cleanUp_water();
     cleanUp_enemy();
+    cheanUp_billboard();
     
 }
 
@@ -750,6 +891,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         ubox_vec.clear();
         water_vec.clear();
         bomb_vec.clear();
+        billboard_vec.clear();
         createGameObjects();
     }
     //CAMERA CONTROL
@@ -802,13 +944,19 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         character->velocity.x = 0.1;
         character->direction = EAST;
     }else if(key == GLFW_KEY_SPACE && (action == GLFW_PRESS || action == GLFW_REPEAT)){
-        int temp_x = (int) character->critical_position.x;
-        int temp_z = (int) character->critical_position.y;
         
-        if(map[temp_x][temp_z] == Elements::EMPTY){
-            map[temp_x][temp_z] = Elements::BOMB;
-            bomb_vec.push_back(new Bomb((double)temp_x + 0.5, 1, (double)temp_z + 0.5, temp_x, temp_z));
+        if(character->current_bomb < character->MAX_BOMB){
+            
+            int temp_x = (int) character->critical_position.x;
+            int temp_z = (int) character->critical_position.y;
+            
+            if(map[temp_x][temp_z] == Elements::EMPTY){
+                character->current_bomb++;
+                map[temp_x][temp_z] = Elements::BOMB;
+                bomb_vec.push_back(new Bomb((double)temp_x + 0.5, 1, (double)temp_z + 0.5, temp_x, temp_z));
+            }
         }
+        
         
     }
     else{

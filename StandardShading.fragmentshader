@@ -15,6 +15,7 @@ uniform sampler2D myTextureSampler;
 uniform mat4 MV;
 uniform vec3 LightPosition_worldspace;
 
+
 void main(){
 
 	// Light emission properties

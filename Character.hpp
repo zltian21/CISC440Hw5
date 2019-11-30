@@ -34,6 +34,8 @@ public:
     glm::vec2 velocity = glm::vec2(0, 0);
     Directions direction = SOUTH;
     int health = 350;
+    int MAX_BOMB = 5;
+    int current_bomb = 0;
     
     std::vector<glm::vec3> vertices;
     std::vector<glm::vec2> uvs;

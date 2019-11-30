@@ -166,7 +166,6 @@ void Character::checkWater(){
         for(int j = 0; j < 13; j++){
             if((int)critical_position.x == water_vec[i]->range[j][0] && (int)critical_position.y == water_vec[i]->range[j][1]){
                 health--;
-                cout << health << endl;
             }
         }
     }
@@ -247,9 +246,6 @@ void Character::update(){
     checkBomb();
     checkEnemy();
     checkWater();
-    if(health <= 0){
-        cout << "GAME OVER" << endl;
-    }
 
     
     position = new_position;
