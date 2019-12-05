@@ -43,4 +43,18 @@ Moreover, the player can use WASD to change the camera view.
 
 //how we made the game
 
+1. We have many 3D objects in this game: Ground, Water Column, Wooden Boxes, Bricks, Character, Enemies, Water Bombs. The position of the camera is fixed, the camera looks at the map from above, but the view is not a flat view, because we also move the camera along the z axis, which shows more details of our game.
+
+2. We use arrow keys and space key to control the character
+
+3. Everthing moves smoothly in this game
+
+4. We have texture on ground, wooden boxes, bricks, character, water bombs, and enemies, water column
+
+5. All Objects in the scene have defuse lighting
+
+Since we have are two Undergraduates we have two additional elements
+6.Complicated 3-D objects: Character, Enemy
+
+7.Billboards: character and each enemy has a health bar that indicates their health above them.
   
