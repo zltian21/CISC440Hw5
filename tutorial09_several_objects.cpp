@@ -1,6 +1,7 @@
 // Include standard headers
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <time.h>
 #include <vector>
 #include "ground.hpp"
@@ -189,6 +190,7 @@ Elements map[20][20];
 Ground * ground;
 Character * character;
 bool newGameFlag = true;
+bool gameOverFlag = false;
 
 
 void createGameObjects(){
@@ -763,6 +765,7 @@ void draw_objects(){
                billboard_vec[i]->draw();
            }
         
+        
     }else{
         if(overIndex > 50 && overIndex <= 100){
             overBomb->draw(Model * glm::translate(overBomb->position) * glm::scale(glm::vec3(6.0, 6.0, 6.0)));
@@ -847,6 +850,10 @@ void update(){
     }
     
     
+    if((character->health <= 0 || enemy_vec.size() <= 0) && gameOverFlag == false){
+        gameOverFlag = true;
+        sleep(1);
+    }
     
 }
 
@@ -880,7 +887,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     
     
     if(key == GLFW_KEY_N && (action == GLFW_PRESS)){
-
+        gameOverFlag = false;
         for(int i = 0; i < 20; i++){
             for(int j = 0; j < 20; j++){
                 map[i][j] = Elements::EMPTY;
@@ -894,38 +901,38 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         billboard_vec.clear();
         createGameObjects();
     }
-    //CAMERA CONTROL
-    else if (key == GLFW_KEY_0 && (action == GLFW_PRESS)){
-        cam_x = 10;
-        cam_y = 23;
-        cam_z = 25;
-    }else if(key == GLFW_KEY_L && (action == GLFW_PRESS)){
-        cam_x = 10;
-        cam_y = 0;
-        cam_z = 40;
-    }else if(key == GLFW_KEY_O && (action == GLFW_PRESS)){
-        cam_x = 10;
-        cam_y = 27;
-        cam_z = 10.1;
-    }else if(key == GLFW_KEY_P && (action == GLFW_PRESS)){
-        cam_x = 40;
-        cam_y = 0;
-        cam_z = 10;
-    }
-    
-    else if(key == GLFW_KEY_W && (action == GLFW_PRESS || action == GLFW_REPEAT)){
-        cam_z -= 0.3;
-    }else if(key == GLFW_KEY_S && (action == GLFW_PRESS || action == GLFW_REPEAT)){
-        cam_z += 0.3;
-    }else if(key == GLFW_KEY_A && (action == GLFW_PRESS || action == GLFW_REPEAT)){
-        cam_x -= 0.3;
-    }else if(key == GLFW_KEY_D && (action == GLFW_PRESS || action == GLFW_REPEAT)){
-        cam_x += 0.3;
-    }else if(key == GLFW_KEY_R && (action == GLFW_PRESS || action == GLFW_REPEAT)){
-        cam_y += 0.3;
-    }else if(key == GLFW_KEY_F && (action == GLFW_PRESS || action == GLFW_REPEAT)){
-        cam_y -= 0.3;
-    }else
+//    //CAMERA CONTROL
+//    else if (key == GLFW_KEY_0 && (action == GLFW_PRESS)){
+//        cam_x = 10;
+//        cam_y = 23;
+//        cam_z = 25;
+//    }else if(key == GLFW_KEY_L && (action == GLFW_PRESS)){
+//        cam_x = 10;
+//        cam_y = 0;
+//        cam_z = 40;
+//    }else if(key == GLFW_KEY_O && (action == GLFW_PRESS)){
+//        cam_x = 10;
+//        cam_y = 27;
+//        cam_z = 10.1;
+//    }else if(key == GLFW_KEY_P && (action == GLFW_PRESS)){
+//        cam_x = 40;
+//        cam_y = 0;
+//        cam_z = 10;
+//    }
+//
+//    else if(key == GLFW_KEY_W && (action == GLFW_PRESS || action == GLFW_REPEAT)){
+//        cam_z -= 0.3;
+//    }else if(key == GLFW_KEY_S && (action == GLFW_PRESS || action == GLFW_REPEAT)){
+//        cam_z += 0.3;
+//    }else if(key == GLFW_KEY_A && (action == GLFW_PRESS || action == GLFW_REPEAT)){
+//        cam_x -= 0.3;
+//    }else if(key == GLFW_KEY_D && (action == GLFW_PRESS || action == GLFW_REPEAT)){
+//        cam_x += 0.3;
+//    }else if(key == GLFW_KEY_R && (action == GLFW_PRESS || action == GLFW_REPEAT)){
+//        cam_y += 0.3;
+//    }else if(key == GLFW_KEY_F && (action == GLFW_PRESS || action == GLFW_REPEAT)){
+//        cam_y -= 0.3;
+//    }else
     
     //CHARACTER CONTROL
     if(key == GLFW_KEY_UP && (action == GLFW_PRESS || action == GLFW_REPEAT)){
