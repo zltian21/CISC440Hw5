@@ -1,6 +1,6 @@
 # CISC440 Fall 2019 Hw5
 
-LowCostBNB
+AdvancedBNB
 
 Letian Zhang, Yixiong Wu
  
@@ -24,9 +24,11 @@ Billboards/impostors
 A scoreboard or other text-based overlay about what is going on (this also does not count as your texture-mapped element)
 "Complicated" 3-D objects (i.e., NOT platonic solids)
 
+For addtional elements, we choosed "Complicated" 3-D and Billboard.
+
 //what is our game 
 
-Our game is a maze and strategy game which inspired by a famous game called Crazy Arcade. There are four characters (include the player) in the game. Due to financial reason, we only have one map, but maybe in the future, there will be more DLCs come out. The player need to kill other characters (controlled by PC) using bombs (only weapon) and stay alive until he/she is the only remaining character in the game. Once a character set a bomb, after sevearl seconds, the bomb will explode and create a cruciform shaped blast which will kill anyone who has been impacted by that blast. The blast can also destory some obstacles on the map. In order to make our game become a ESRB E game, we use water bomb and water current to represent the bomb and the blast.
+Our game is a maze and strategy game which inspired by a famous game called Crazy Arcade. We implement some mechanisms to fulfil the requirments of the project. There are four characters (include the player) in the game. Due to financial reason, we only have one map, but maybe in the future, there will be more DLCs come out. The player need to kill other characters (controlled by PC) using bombs (only weapon) and stay alive until he/she is the only remaining character in the game. If the player get chased up other characters, the player will lose some HP.Once the player set a bomb, after sevearl seconds, the bomb will explode and create a cruciform shaped blast. If anyone who has been impacted by that blast, they will lose some HP. If anyone loss all thier HP, they will die. The blast can also destory some obstacles on the map. In order to make our game become a ESRB E game, we use water bomb and water current to represent the bomb and the blast. 
 
 //how to play our game
 
