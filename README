@@ -1,11 +1,46 @@
-Team Member: Letian Zhang, Yixiong Wu
+# CISC440 Fall 2019 Hw5
 
-Our game is similar to Crazy Arcade but simpler.
-In the game, the player can control the character with arrow keys for directions, and space key for setting water bombs. The character can have a maximum of 5 water bombs each time. The water bomb will be blowd after few seconds, and will destroy breakable wooden boxes and hurt character and enemies within the range, which is shaped like "+". Also, character would also be damaged if it collides with enemies.
+AdvancedBNB
 
-To win this game, the player have to control the character and use water bombs to kill the enemies.
+Letian Zhang, Yixiong Wu
+ 
+In this final project, we need to write a 3-D game using OpenGl and GLSL. The requirements that our game must had are following.
 
-How we satisfied the requirements:
+// requirements
+
+An environment which consists primarily of 3-D objects, rather than 2-D sprites (although these are allowed). The view of the environment should not be purely plan or elevation, but rather something closer to isometric. Your camera may be perspective or orthographic.
+User control through keyboard or mouse input
+Objects must move smoothly, camera views (if they change) must change smoothly. Your game can still be turn-based: a recent student had a very nice chess implementation in which the pieces "flew" to their next square
+At least one texture-mapped element
+At least one 3-D element which is "lit" with diffuse and/or specular lighting.
+
+Also, since we are doing group work, we also need to include two following additional elements in the game. 
+
+Incorporate more features of Bullet physics (i.e., something beyond gravity and/or collision with a plane)
+3-D or 4-D value/Perlin noise (this does not count as the texture-mapped element above)
+Environment/reflection mapping
+Shadow mapping
+Billboards/impostors
+A scoreboard or other text-based overlay about what is going on (this also does not count as your texture-mapped element)
+"Complicated" 3-D objects (i.e., NOT platonic solids)
+
+For additional elements, we choose "Complicated" 3-D and Billboard.
+
+//what is our game 
+
+Our game is a maze and strategy game which inspired by a famous game called Crazy Arcade. We implement some mechanisms to fulfill the requirements of the project. There is one character, and three enemies. The player need to kill the enemies using water bombs. If the player get chased up other characters, the player will lose some HP, or if the player is damaged by the water bomb, the HP will also decrease. Once the player set a water bomb, after several seconds, the water bomb will explode and create a cruciform shaped blast. If anyone who has been impacted by that blast, they will lose some HP. If anyone loss all their HP, they will die. The blast can also destroy some obstacles on the map. 
+
+//how to play our game
+
+The player can move up, down, right and left, and also they can set up a bomb. 
+  UP: ↑
+  Down: ↓
+  RIGHT: →
+  LEFT: ←
+  SET WATER BOMB: SPACE
+
+//how we made the game
+
 1. We have many 3D objects in this game: Ground, Water Column, Wooden Boxes, Bricks, Character, Enemies, Water Bombs. The position of the camera is fixed, the camera looks at the map from above, but the view is not a flat view, because we also move the camera along the z axis, which shows more details of our game.
 
 2. We use arrow keys and space key to control the character
@@ -14,9 +49,10 @@ How we satisfied the requirements:
 
 4. We have texture on ground, wooden boxes, bricks, character, water bombs, and enemies, water column
 
-5. All Objects in the scene have defuse lighting
+5. All Objects in the scene have ambient, defuse, and specular lighting
 
 Since we have are two Undergraduates we have two additional elements
 6.Complicated 3-D objects: Character, Enemy
 
 7.Billboards: character and each enemy has a health bar that indicates their health above them.
+  
